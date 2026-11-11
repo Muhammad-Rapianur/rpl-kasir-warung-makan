@@ -30,7 +30,7 @@ Proyek tugas mata kuliah **Rekayasa Perangkat Lunak (RPL)** — Sistem informasi
 - **Database:** SQLite3 (Penyimpanan lokal yang andal dan ringan)
 - **Struk:** Browser Print Styling (`@media print`) kompatibel printer thermal 58mm/80mm
 
----
+----
 
 ## 📂 Struktur Direktori Repositori
 ```text
