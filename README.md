@@ -14,7 +14,10 @@ Proyek tugas mata kuliah **Rekayasa Perangkat Lunak (RPL)** — Sistem informasi
    Pedoman tata kelola proyek yang mencakup standar branching Git, format pesan commit (*Conventional Commits*), konvensi kode Python/Flask/Jinja2, standar keamanan web (anti-XSS & anti-SQLi), aturan perumusan user story (INVEST & Given-When-Then), serta kriteria *Definition of Done* (DoD).  
    *(Tersedia juga salinan di [docs/aturan-proyek.md](docs/aturan-proyek.md))*.
 
-3. **Dokumentasi Elisitasi Kebutuhan**
+3. **[Pemodelan Sistem dengan UML](docs/uml/README.md)**  
+   Diagram Use Case, Skenario Use Case detail (UC-01 s.d. UC-07), dan 3 Activity Diagram proses utama dalam sintaks Mermaid (`flowchart LR` & `flowchart TD`).
+
+4. **Dokumentasi Elisitasi Kebutuhan**
    - [Pedoman Wawancara](docs/elisitasi/pedoman-wawancara.md)
    - [Catatan Wawancara](docs/elisitasi/catatan-wawancara.md)
    - [User Story & Kriteria Penerimaan](docs/elisitasi/user-story.md)
