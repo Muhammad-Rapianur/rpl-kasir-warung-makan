@@ -1,0 +1,20 @@
+flowchart TD
+    A((Mulai)) --> B[Pemilik membuka halaman laporan penjualan]
+    B --> C{Pilih filter periode?}
+    
+    C -- Hari Ini --> D[Sistem mengambil seluruh transaksi tanggal hari ini]
+    C -- Rentang Tanggal --> E[Pemilik memilih tanggal awal dan tanggal akhir]
+    E --> F[Sistem mengambil transaksi sesuai rentang tanggal]
+    
+    D --> G{Terdapat transaksi tercatat?}
+    F --> G
+    
+    G -- Tidak --> H[Sistem menampilkan informasi: Belum ada transaksi / Omzet Rp0]
+    H --> I((Selesai))
+    
+    G -- Ya --> J[Sistem menghitung total akumulasi omzet kotor]
+    J --> K[Sistem memisahkan rincian penerimaan: Kas Tunai vs Saldo QRIS]
+    K --> L[Sistem menyusun daftar 5 menu terlaris beserta jumlah porsi]
+    L --> M[Sistem merender kartu ringkasan omzet dan grafik/tabel penjualan]
+    M --> N[Pemilik melakukan pencocokan fisik uang laci dengan rekap kas]
+    N --> I
