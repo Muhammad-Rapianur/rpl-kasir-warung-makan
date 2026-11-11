@@ -14,10 +14,13 @@ Proyek tugas mata kuliah **Rekayasa Perangkat Lunak (RPL)** — Sistem informasi
    Pedoman tata kelola proyek yang mencakup standar branching Git, format pesan commit (*Conventional Commits*), konvensi kode Python/Flask/Jinja2, standar keamanan web (anti-XSS & anti-SQLi), aturan perumusan user story (INVEST & Given-When-Then), serta kriteria *Definition of Done* (DoD).  
    *(Tersedia juga salinan di [docs/aturan-proyek.md](docs/aturan-proyek.md))*.
 
-3. **[Pemodelan Sistem dengan UML](docs/uml/README.md)**  
+3. **[Kesepakatan Tim (Team Working Agreements)](docs/kesepakatan-tim/kesepakatan-tim.md)**  
+   Pedoman kerja sama internal kelompok, pembagian peran dan matriks tanggung jawab RACI, jadwal komunikasi dan SLA review PR ($\le 24\text{ jam}$), etika pemanfaatan AI, serta resolusi konflik tim.
+
+4. **[Pemodelan Sistem dengan UML](docs/uml/README.md)**  
    Diagram Use Case, Skenario Use Case detail (UC-01 s.d. UC-07), dan 3 Activity Diagram proses utama dalam sintaks Mermaid (`flowchart LR` & `flowchart TD`).
 
-4. **Dokumentasi Elisitasi Kebutuhan**
+5. **Dokumentasi Elisitasi Kebutuhan**
    - [Pedoman Wawancara](docs/elisitasi/pedoman-wawancara.md)
    - [Catatan Wawancara](docs/elisitasi/catatan-wawancara.md)
    - [User Story & Kriteria Penerimaan](docs/elisitasi/user-story.md)
@@ -40,6 +43,9 @@ rpl-kasir-warung-makan/
 │   │   ├── catatan-wawancara.md
 │   │   ├── pedoman-wawancara.md
 │   │   └── user-story.md
+│   ├── kesepakatan-tim/      <-- 📂 Piagam kesepakatan kerja sama internal kelompok
+│   │   ├── README.md
+│   │   └── kesepakatan-tim.md
 │   ├── uml/                  <-- Khusus berkas/gambar diagram UML (Use Case, Activity, dll.)
 │   ├── PRD.md                <-- Dokumen Kebutuhan Produk (PRD)
 │   └── aturan-proyek.md      <-- Pedoman tata kelola & standar proyek
