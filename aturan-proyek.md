@@ -66,7 +66,20 @@ Daftar tipe commit yang diizinkan:
 
 ## 3. Konvensi Kode & Standar Kualitas
 
-### 3.1 Backend (Python & Flask)
+### 3.1 Backend & Arsitektur Berlapis (MVC)
+- **Pemisahan Tanggung Jawab (*Separation of Concerns*):**
+  - `app.py`: Hanya bertugas menerima HTTP request, memanggil fungsi di `services.py`, dan me-render template HTML. **Dilarang menulis kueri SQL langsung di `app.py`**.
+  - `services.py`: Berisi logika bisnis aplikasi (kalkulasi kembalian, pemrosesan diskon, validasi menu habis, agregasi omzet). **Dilarang memproses HTML atau mengakses database secara langsung**.
+  - `models.py`: **Satu-satunya berkas** yang diperbolehkan mengakses basis data SQLite via kueri berparameter (*parameterized query*).
+- **Perintah Menjalankan Skema Basis Data:**
+  - Inisialisasi basis data dari skema DDL:
+    ```bash
+    python -c "import sqlite3; conn = sqlite3.connect('kasir_warung.db'); conn.executescript(open('docs/desain/schema.sql', encoding='utf-8').read()); conn.close()"
+    ```
+  - Menjalankan skrip uji integritas skema:
+    ```bash
+    python tests/cek_skema.py
+    ```
 - Mengikuti pedoman penulisan kode **PEP 8**:
   - Penamaan fungsi dan variabel menggunakan `snake_case` (contoh: `hitung_kembalian()`, `total_tagihan`).
   - Penamaan kelas menggunakan `PascalCase` (contoh: `TransaksiManager`).
