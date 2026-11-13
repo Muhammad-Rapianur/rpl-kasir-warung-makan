@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head><style>
+* { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: #f8f9fa; margin: 0; padding: 20px; color: #212529; }
+.wireframe-container { background: #ffffff; border: 2px solid #333333; max-width: 960px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 4px; overflow: hidden; }
+.navbar { background: #e9ecef; border-bottom: 2px solid #333333; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.nav-links { display: flex; gap: 15px; font-weight: bold; }
+.nav-links span { padding: 4px 8px; border-radius: 3px; }
+.nav-links .active { background: #333333; color: #ffffff; text-decoration: underline; }
+.nav-user { font-size: 13px; color: #495057; }
+.content { padding: 24px; }
+.page-title { font-size: 22px; font-weight: bold; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; margin-top: 0; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+.badge-role { font-size: 12px; background: #6c757d; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: normal; }
+.btn { border: 1.5px solid #333333; background: #e2e3e5; padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+.btn-primary { background: #343a40; color: #ffffff; }
+.btn-danger { background: #dc3545; color: #ffffff; border-color: #bd2130; }
+.btn-success { background: #28a745; color: #ffffff; border-color: #1e7e34; }
+.input-box { border: 1.5px solid #495057; padding: 8px 12px; font-size: 14px; border-radius: 4px; width: 100%; background: #ffffff; }
+.alert-error { border: 2px dashed #dc3545; background: #fff5f5; color: #721c24; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.alert-success { border: 2px dashed #28a745; background: #f4fff6; color: #155724; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px; }
+.table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
+.table th, .table td { border: 1px solid #ced4da; padding: 8px 10px; text-align: left; }
+.table th { background: #e9ecef; font-weight: bold; }
+.num-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #fd7e14; color: #fff; font-weight: bold; font-size: 12px; border-radius: 50%; margin-right: 6px; }
+
+.cards-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.card { border: 1.5px solid #333; padding: 14px; border-radius: 4px; background: #fff; text-align: center; }
+.card-val { font-size: 20px; font-weight: bold; margin-top: 6px; color: #28a745; }
+</style></head>
+<body>
+<div class="wireframe-container">
+  <div class="navbar">
+    <div class="nav-links">
+      <span>POS Kasir</span>
+      <span>Riwayat Transaksi</span>
+      <span>Kelola Menu (Pemilik)</span>
+      <span class="active"><span class="num-badge">1</span>Laporan Omzet (Pemilik)</span>
+    </div>
+    <div class="nav-user">Pemilik: <b>Pak Joko</b> | [Keluar]</div>
+  </div>
+
+  <div class="content">
+    <div class="page-title">
+      <span>Rekapitulasi Omzet & Menu Terlaris</span>
+      <div style="display:flex; gap:8px; font-size:13px; align-items:center;">
+        <span class="num-badge">2</span>
+        <input class="input-box" type="date" value="2026-11-14" style="width:140px; padding:4px 8px;" />
+        <span>s.d.</span>
+        <input class="input-box" type="date" value="2026-11-14" style="width:140px; padding:4px 8px;" />
+        <button class="btn btn-primary" style="padding:4px 10px;">Tampilkan</button>
+      </div>
+    </div>
+
+    <!-- Ringkasan Kartu -->
+    <div class="cards-grid">
+      <div class="card">
+        <span class="num-badge">3</span>
+        <div style="font-size:12px; font-weight:bold;">Total Omzet Kotor</div>
+        <div class="card-val">Rp 1.850.000</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px; font-weight:bold;">Kas Tunai Fisik</div>
+        <div class="card-val" style="color:#007bff;">Rp 1.300.000</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px; font-weight:bold;">Saldo Masuk QRIS</div>
+        <div class="card-val" style="color:#6f42c1;">Rp 550.000</div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px; font-weight:bold;">Jumlah Transaksi</div>
+        <div class="card-val" style="color:#333;">42 Nota</div>
+      </div>
+    </div>
+
+    <!-- 5 Menu Terlaris -->
+    <h4><span class="num-badge">4</span>5 Menu Paling Laris Hari Ini (Top 5 Best Seller)</h4>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Peringkat</th>
+          <th>Nama Menu</th>
+          <th>Kategori</th>
+          <th>Porsi Terjual</th>
+          <th>Total Akumulasi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>#1</td><td>Ayam Goreng</td><td>Sayur & Lauk</td><td>35 porsi</td><td>Rp 525.000</td></tr>
+        <tr><td>#2</td><td>Nasi Putih</td><td>Makanan Utama</td><td>50 porsi</td><td>Rp 200.000</td></tr>
+        <tr><td>#3</td><td>Es Teh Manis</td><td>Minuman</td><td>38 gelas</td><td>Rp 190.000</td></tr>
+        <tr><td>#4</td><td>Sayur Asem</td><td>Sayur & Lauk</td><td>20 porsi</td><td>Rp 100.000</td></tr>
+        <tr><td>#5</td><td>Tempe Goreng</td><td>Sayur & Lauk</td><td>28 potong</td><td>Rp  84.000</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+flowchart LR
+    LOGIN(["Halaman Login<br/>(wf-01)"]) -->|Autentikasi Berhasil| POS(["Halaman POS Kasir<br/>(wf-02)<br/><i>[Beranda Kasir & Pemilik]</i>"])
+    
+    POS -->|Selesaikan Transaksi & Bayar| STRUK(["Struk Pembayaran<br/>(wf-03)"])
+    STRUK -->|Tombol Pesanan Baru| POS
+    
+    POS <-->|Menu Navigasi| RIWAYAT(["Riwayat Transaksi<br/>(wf-05)"])
+    
+    POS <-->|Menu Navigasi| MENU(["Manajemen Menu & Harga<br/>(wf-04)<br/><b>(Khusus Pemilik)</b>"])
+    
+    POS <-->|Menu Navigasi| LAPORAN(["Laporan Omzet & Terlaris<br/>(wf-06)<br/><b>(Khusus Pemilik)</b>"])
+    
+    POS -.->|Tombol Keluar| LOGOUT(["Keluar / Logout"])
+    LOGOUT -.-> LOGIN

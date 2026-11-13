@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head><style>
+* { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: #f8f9fa; margin: 0; padding: 20px; color: #212529; }
+.wireframe-container { background: #ffffff; border: 2px solid #333333; max-width: 960px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 4px; overflow: hidden; }
+.navbar { background: #e9ecef; border-bottom: 2px solid #333333; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.nav-links { display: flex; gap: 15px; font-weight: bold; }
+.nav-links span { padding: 4px 8px; border-radius: 3px; }
+.nav-links .active { background: #333333; color: #ffffff; text-decoration: underline; }
+.nav-user { font-size: 13px; color: #495057; }
+.content { padding: 24px; }
+.page-title { font-size: 22px; font-weight: bold; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; margin-top: 0; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+.badge-role { font-size: 12px; background: #6c757d; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: normal; }
+.btn { border: 1.5px solid #333333; background: #e2e3e5; padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+.btn-primary { background: #343a40; color: #ffffff; }
+.btn-danger { background: #dc3545; color: #ffffff; border-color: #bd2130; }
+.btn-success { background: #28a745; color: #ffffff; border-color: #1e7e34; }
+.input-box { border: 1.5px solid #495057; padding: 8px 12px; font-size: 14px; border-radius: 4px; width: 100%; background: #ffffff; }
+.alert-error { border: 2px dashed #dc3545; background: #fff5f5; color: #721c24; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.alert-success { border: 2px dashed #28a745; background: #f4fff6; color: #155724; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px; }
+.table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
+.table th, .table td { border: 1px solid #ced4da; padding: 8px 10px; text-align: left; }
+.table th { background: #e9ecef; font-weight: bold; }
+.num-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #fd7e14; color: #fff; font-weight: bold; font-size: 12px; border-radius: 50%; margin-right: 6px; }
+
+</style></head>
+<body>
+<div class="wireframe-container">
+  <div class="navbar">
+    <div class="nav-links">
+      <span>POS Kasir</span>
+      <span class="active"><span class="num-badge">1</span>Riwayat Transaksi</span>
+      <span>Kelola Menu (Pemilik)</span>
+      <span>Laporan Omzet (Pemilik)</span>
+    </div>
+    <div class="nav-user">Petugas: <b>Siti (Kasir)</b> | [Keluar]</div>
+  </div>
+
+  <div class="content">
+    <div class="page-title"><span>Daftar Riwayat Transaksi Hari Ini</span></div>
+
+    <div style="display:flex; gap:10px; margin-bottom:14px; align-items:center;">
+      <span class="num-badge">2</span>
+      <label><b>Tanggal:</b></label>
+      <input class="input-box" type="date" value="2026-11-14" style="width:160px;" />
+      <label><b>Metode:</b></label>
+      <select class="input-box" style="width:120px;"><option>Semua</option><option>Tunai</option><option>QRIS</option></select>
+      <button class="btn btn-primary" style="padding:6px 12px;">Filter</button>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No. Transaksi</th>
+          <th>Jam</th>
+          <th>Kasir</th>
+          <th>Tipe</th>
+          <th>Metode</th>
+          <th>Total Belanja</th>
+          <th><span class="num-badge">3</span>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>TRX-20261114-001</td><td>11:42</td><td>Siti</td><td>Dine-in (01)</td><td>Tunai</td><td>Rp 35.000</td><td><button class="btn" style="padding:2px 6px; font-size:11px;">Lihat Nota</button></td></tr>
+        <tr><td>TRX-20261114-002</td><td>12:10</td><td>Siti</td><td>Bungkus</td><td>QRIS</td><td>Rp 28.000</td><td><button class="btn" style="padding:2px 6px; font-size:11px;">Lihat Nota</button></td></tr>
+        <tr><td>TRX-20261114-003</td><td>12:35</td><td>Siti</td><td>Dine-in (05)</td><td>Tunai</td><td>Rp 48.000</td><td><button class="btn" style="padding:2px 6px; font-size:11px;"><span class="num-badge">4</span>Lihat Nota</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
