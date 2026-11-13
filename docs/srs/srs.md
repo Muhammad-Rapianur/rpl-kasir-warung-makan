@@ -109,22 +109,22 @@ Fitur berikut secara sadar **disepakati tidak dikerjakan** pada proyek ini untuk
 
 ## 6. Matriks Keterlacakan (*Traceability Matrix*)
 
-Memetakan hubungan dari kebutuhan awal (*User Story*) ke Kebutuhan Fungsional/Non-Fungsional (KF/KNF), serta rencana pengujian:
+Memetakan hubungan dari kebutuhan awal (*User Story*) ke Kebutuhan Fungsional/Non-Fungsional (KF/KNF), Halaman Antarmuka, serta rencana pengujian (*Test Case* - diperbarui Minggu 7/13 sesuai Jobsheet 7):
 
-| User Story (US) | KF / KNF Turunan | Rencana Uji (*Test Case* - Minggu 13) |
-| :--- | :--- | :--- |
-| **US-01 (Katalog Menu)** | KF-01, KNF-01 | TC-01: Verifikasi pemuatan seluruh kategori dan menu di layar kasir $\le 2$ detik. |
-| **US-02 (Kelola Menu & Harga)** | KF-02, KNF-06 | TC-02: Uji tambah menu, ubah harga, dan validasi input harga negatif ditolak. |
-| **US-03 (Tipe Pesanan)** | KF-03 | TC-03: Uji pemilihan opsi Dine-in (No Meja) dan Bungkus pada struk pesanan. |
-| **US-04 (Hitung Otomatis)** | KF-04, KNF-02 | TC-04: Uji akurasi matematis subtotal harga lauk + nasi $\times$ kuantitas. |
-| **US-05 (Validasi Menu Habis)** | KF-05 | TC-05: Uji penolakan penambahan menu bertanda Habis ke keranjang pesanan. |
-| **US-06 (Hitung Kembalian)** | KF-06, KF-07, KNF-06 | TC-06: Uji kalkulasi kembalian tunai dan verifikasi penolakan uang kurang. |
-| **US-07 (Metode Bayar)** | KF-08 | TC-07: Uji pemilihan metode Tunai vs QRIS statis warung. |
-| **US-08 (Nomor Transaksi)** | KF-09 | TC-08: Verifikasi keunikan nomor nota urut harian (`TRX-YYYYMMDD-XXX`). |
-| **US-09 (Cetak Struk)** | KF-10, KNF-05 | TC-09: Uji tampilan cetak dialog peramban pas pada format thermal 58mm. |
-| **US-10 (Riwayat Penjualan)** | KF-11 | TC-10: Verifikasi daftar seluruh transaksi tersimpan di database lokal. |
-| **US-11 (Rekapitulasi Omzet)** | KF-12, KNF-03 | TC-11: Uji kesesuaian total omzet kotor, total Tunai, dan total QRIS saat tutup kasir. |
-| **US-12 (Menu Terlaris)** | KF-13 | TC-12: Verifikasi urutan 5 menu dengan kuantitas porsi terjual terbanyak. |
+| User Story (US) | KF / KNF Turunan | Wireframe Halaman | ID Test Case (Terverifikasi di rencana-uji.md) |
+| :--- | :--- | :---: | :--- |
+| **US-01 (Katalog Menu)** | KF-01, KNF-01 | `wf-02` POS Kasir | `TC-01` (Filter kategori dan pemuatan menu $\le 2\text{ s}$) |
+| **US-02 (Kelola Menu & Harga)** | KF-02, KNF-06 | `wf-04` Kelola Menu | `TC-02` (Tambah menu valid), `TC-03` (Tolak harga minus), `TC-04` (Ubah status habis) |
+| **US-03 (Tipe Pesanan)** | KF-03 | `wf-02` POS Kasir | `TC-05` (Pilihan Dine-in No Meja dan Take-away) |
+| **US-04 (Hitung Otomatis)** | KF-04, KNF-02 | `wf-02` POS Kasir | `TC-06` (Akurasi matematis subtotal & total), `TC-07` (Tolak kuantitas $\le 0$) |
+| **US-05 (Validasi Menu Habis)** | KF-05 | `wf-02` POS Kasir | `TC-08` (Penolakan menu berstatus habis ke keranjang) |
+| **US-06 (Hitung Kembalian)** | KF-06, KF-07, KNF-06 | `wf-02` POS Kasir | `TC-09` (Uang pas), `TC-10` (Uang lebih), `TC-11` (Tolak uang bayar kurang) |
+| **US-07 (Metode Bayar)** | KF-08 | `wf-02` POS Kasir | `TC-12` (Opsi bayar Tunai vs QRIS statis tanpa kembalian) |
+| **US-08 (Nomor Transaksi)** | KF-09 | `wf-02`, `wf-03` | `TC-13` (Nomor transaksi unik urut `TRX-YYYYMMDD-XXX`) |
+| **US-09 (Cetak Struk)** | KF-10, KNF-05 | `wf-03` Struk | `TC-14` (Cetak struk nota thermal 58mm/80mm) |
+| **US-10 (Riwayat Penjualan)** | KF-11 | `wf-05` Riwayat | `TC-15` (Tampilan riwayat transaksi harian) |
+| **US-11 (Rekapitulasi Omzet)** | KF-12, KNF-03 | `wf-06` Laporan Omzet | `TC-16` (Rekapitulasi omzet harian: Kas Tunai vs QRIS) |
+| **US-12 (Menu Terlaris)** | KF-13 | `wf-06` Laporan Omzet | `TC-17` (Peringkat 5 menu paling laris harian) |
 
 ---
 
