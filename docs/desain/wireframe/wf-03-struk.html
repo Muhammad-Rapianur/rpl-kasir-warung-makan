@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head><style>
+* { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+body { background: #f8f9fa; margin: 0; padding: 20px; color: #212529; }
+.wireframe-container { background: #ffffff; border: 2px solid #333333; max-width: 960px; margin: 0 auto; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border-radius: 4px; overflow: hidden; }
+.navbar { background: #e9ecef; border-bottom: 2px solid #333333; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+.nav-links { display: flex; gap: 15px; font-weight: bold; }
+.nav-links span { padding: 4px 8px; border-radius: 3px; }
+.nav-links .active { background: #333333; color: #ffffff; text-decoration: underline; }
+.nav-user { font-size: 13px; color: #495057; }
+.content { padding: 24px; }
+.page-title { font-size: 22px; font-weight: bold; border-bottom: 2px solid #dee2e6; padding-bottom: 10px; margin-top: 0; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; }
+.badge-role { font-size: 12px; background: #6c757d; color: #fff; padding: 3px 8px; border-radius: 4px; font-weight: normal; }
+.btn { border: 1.5px solid #333333; background: #e2e3e5; padding: 8px 16px; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 14px; display: inline-flex; align-items: center; justify-content: center; }
+.btn-primary { background: #343a40; color: #ffffff; }
+.btn-danger { background: #dc3545; color: #ffffff; border-color: #bd2130; }
+.btn-success { background: #28a745; color: #ffffff; border-color: #1e7e34; }
+.input-box { border: 1.5px solid #495057; padding: 8px 12px; font-size: 14px; border-radius: 4px; width: 100%; background: #ffffff; }
+.alert-error { border: 2px dashed #dc3545; background: #fff5f5; color: #721c24; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.alert-success { border: 2px dashed #28a745; background: #f4fff6; color: #155724; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px; }
+.table { width: 100%; border-collapse: collapse; margin-bottom: 15px; font-size: 13px; }
+.table th, .table td { border: 1px solid #ced4da; padding: 8px 10px; text-align: left; }
+.table th { background: #e9ecef; font-weight: bold; }
+.num-badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: #fd7e14; color: #fff; font-weight: bold; font-size: 12px; border-radius: 50%; margin-right: 6px; }
+
+.receipt-wrapper { max-width: 340px; margin: 10px auto; border: 2px dashed #495057; padding: 18px; background: #fff; font-family: 'Courier New', monospace; font-size: 12px; }
+.receipt-header { text-align: center; border-bottom: 1px dashed #333; padding-bottom: 8px; margin-bottom: 8px; }
+.receipt-line { display: flex; justify-content: space-between; margin-bottom: 4px; }
+</style></head>
+<body>
+<div class="wireframe-container" style="max-width: 600px;">
+  <div class="navbar"><span style="font-weight:bold;">Pratinjau Struk Nota Transaksi</span></div>
+  <div class="content" style="text-align:center;">
+    <div class="alert-success" style="max-width:340px; margin:0 auto 15px auto;">
+      <span class="num-badge">1</span>Transaksi Berhasil Disimpan (Lunas)
+    </div>
+
+    <!-- Tampilan Struk Thermal 58mm -->
+    <div class="receipt-wrapper">
+      <div class="receipt-header">
+        <h3 style="margin:0; font-size:15px;"><span class="num-badge">2</span>WARUNG MAKAN BAROKAH</h3>
+        <p style="margin:2px 0;">Jl. Ahmad Yani No. 12, Sampit</p>
+        <p style="margin:0;">No. Nota: <b>TRX-20261114-003</b></p>
+      </div>
+
+      <div class="receipt-line"><span>Tanggal: 14/11/2026 12:35</span><span>Kasir: Siti</span></div>
+      <div class="receipt-line" style="border-bottom:1px dashed #333; padding-bottom:4px;"><span>Tipe: Dine-in (Meja 05)</span><span></span></div>
+
+      <div style="margin:8px 0;">
+        <div class="receipt-line"><span>2x Nasi Putih @4.000</span><span>8.000</span></div>
+        <div class="receipt-line"><span>2x Ayam Goreng @15.000</span><span>30.000</span></div>
+        <div class="receipt-line"><span>2x Es Teh Manis @5.000</span><span>10.000</span></div>
+      </div>
+
+      <div style="border-top:1px dashed #333; padding-top:6px; margin-top:6px;">
+        <div class="receipt-line" style="font-weight:bold; font-size:13px;"><span>TOTAL:</span><span>Rp 48.000</span></div>
+        <div class="receipt-line"><span>Metode Bayar:</span><span>Tunai</span></div>
+        <div class="receipt-line"><span>Tunai Diterima:</span><span>Rp 50.000</span></div>
+        <div class="receipt-line"><span>Kembalian:</span><span>Rp  2.000</span></div>
+      </div>
+
+      <div style="text-align:center; border-top:1px dashed #333; padding-top:8px; margin-top:8px;">
+        Terima Kasih Atas Kunjungan Anda!
+      </div>
+    </div>
+
+    <div style="margin-top:20px; display:flex; justify-content:center; gap:12px;">
+      <button class="btn btn-primary"><span class="num-badge">3</span>Cetak Nota (Thermal 58mm)</button>
+      <button class="btn btn-success"><span class="num-badge">4</span>Pesanan Baru (Kembali ke POS)</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>
