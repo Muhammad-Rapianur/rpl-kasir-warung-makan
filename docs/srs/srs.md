@@ -130,7 +130,8 @@ Memetakan hubungan dari kebutuhan awal (*User Story*) ke Kebutuhan Fungsional/No
 
 ## 7. Riwayat Konfirmasi Klien
 
-| Tanggal | Narasumber / Klien | Ringkasan Tanggapan | Perubahan pada Kebutuhan |
+| Tanggal | Narasumber / Klien | Ringkasan Tanggapan | Perubahan pada Kebutuhan / Aturan Data |
 | :---: | :--- | :--- | :--- |
 | 11 Nov 2026 | Pemilik Warung Makan | Klien mengonfirmasi bahwa pembayaran terbanyak adalah Tunai dan sebagian pembeli muda memakai QRIS. Klien tidak membutuhkan mesin barcode. | Mempertahankan KF-08 (Tunai & QRIS), menegaskan scanner barcode masuk ke daftar *Won't Have*. |
 | 11 Nov 2026 | Kasir Warung Makan | Meminta tombol menu berukuran besar dan perhitungan kembalian otomatis agar antrean jam makan siang tidak tersendat. | Menambahkan metrik terukur pada KNF-04 dan KNF-05 (font $\ge 16\text{ px}$). |
+| 14 Nov 2026 | Pemilik Warung Makan | **Konfirmasi Aturan Data (Jobsheet 6 Langkah 14):**<br>1. *Harga beda Dine-in vs Bungkus:* Harga makanan/minuman sama persis (tidak ada biaya bungkus tambahan).<br>2. *Stok angka vs status habis:* Warung tidak menghitung gram/porsi bahan baku; jika lauk di etalase habis, kasir cukup menekan tombol 'Habis'.<br>3. *Penghapusan data nota:* Riwayat nota penjualan lama tidak boleh dihapus agar rekap omzet bulanan akurat.<br>4. *Pembayaran split:* Metode bayar per transaksi harus tegas satu jenis (Tunai atau QRIS, tidak digabung). | 1. Memastikan kolom `harga` hanya ada 1 di tabel `menu`.<br>2. Tabel `menu` menggunakan `status IN ('tersedia', 'habis')` tanpa kolom stok angka.<br>3. Tabel `transaksi` tidak menyediakan fitur hard-delete di antarmuka kasir.<br>4. Batasan `metode_pembayaran IN ('tunai', 'qris')` ditegakkan pada skema DDL. |
