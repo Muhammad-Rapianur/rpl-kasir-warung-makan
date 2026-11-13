@@ -1,0 +1,46 @@
+erDiagram
+    PENGGUNA ||--o{ TRANSAKSI : mencatat
+    KATEGORI ||--|{ MENU : mengelompokkan
+    TRANSAKSI ||--|{ DETAIL_TRANSAKSI : memuat
+    MENU ||--o{ DETAIL_TRANSAKSI : terjual_dalam
+
+    PENGGUNA {
+        int id PK
+        text username UK
+        text password_hash
+        text nama_lengkap
+        text peran
+    }
+
+    KATEGORI {
+        int id PK
+        text nama UK
+    }
+
+    MENU {
+        int id PK
+        int kategori_id FK
+        text nama UK
+        int harga
+        text status
+    }
+
+    TRANSAKSI {
+        int id PK
+        text nomor_transaksi UK
+        text tanggal_waktu
+        text tipe_pesanan
+        text nomor_meja
+        text metode_pembayaran
+        int uang_diterima
+        int pengguna_id FK
+    }
+
+    DETAIL_TRANSAKSI {
+        int id PK
+        int transaksi_id FK
+        int menu_id FK
+        int jumlah
+        int harga_satuan
+        text catatan
+    }
