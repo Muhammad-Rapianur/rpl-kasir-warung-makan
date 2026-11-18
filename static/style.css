@@ -1,0 +1,314 @@
+/* ============================================================
+   style.css - Lembar Gaya Terpadu Sistem KasirWarung
+   (Jobsheet 11 - Langkah 6 / Lampiran B.6)
+   Menggunakan variabel :root, fokus aksesibilitas, dan tata letak responsif.
+   ============================================================ */
+
+:root {
+  --primary: #212529;
+  --primary-hover: #343a40;
+  --accent: #0d6efd;
+  --bg: #f8f9fa;
+  --card-bg: #ffffff;
+  --border: #dee2e6;
+  --text: #212529;
+  --text-muted: #6c757d;
+  --success-bg: #d1e7dd;
+  --success-text: #0f5132;
+  --success-border: #badbcc;
+  --error-bg: #f8d7da;
+  --error-text: #842029;
+  --error-border: #f5c2c7;
+  --focus-ring: #0d6efd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Aksesibilitas: Fokus keyboard yang terlihat tegas */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Header Navigasi */
+header {
+  background-color: var(--primary);
+  color: #fff;
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+header .brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+nav {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+nav a {
+  color: #ced4da;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+nav a:hover, nav a:focus {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+nav .user-meta {
+  margin-left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #adb5bd;
+  font-size: 14px;
+  border-left: 1px solid #495057;
+  padding-left: 14px;
+}
+
+nav .user-name {
+  color: #fff;
+  font-weight: 600;
+}
+
+nav .badge-peran {
+  background-color: #495057;
+  color: #f8f9fa;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+nav form.logout-form {
+  display: inline;
+  margin: 0;
+}
+
+nav .btn-logout {
+  background: transparent;
+  color: #e9ecef;
+  border: 1px solid #6c757d;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+nav .btn-logout:hover {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: #fff;
+}
+
+/* Kontainer Utama */
+.container {
+  max-width: 1050px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+/* Pesan Notifikasi (Status & Alert) */
+.pesan-flash {
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.pesan-sukses {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+  border: 1px solid var(--success-border);
+}
+
+.pesan-galat {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+  border: 1px solid var(--error-border);
+}
+
+/* Tabel Data */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--card-bg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+th, td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+th {
+  background-color: #f1f3f5;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+.badge-tersedia {
+  background-color: var(--success-bg);
+  color: var(--success-text);
+}
+
+.badge-habis {
+  background-color: var(--error-bg);
+  color: var(--error-text);
+}
+
+/* Tombol */
+.btn {
+  display: inline-block;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease-in-out;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-hover);
+}
+
+.btn-outline {
+  background: transparent;
+  border-color: #ced4da;
+  color: #212529;
+}
+
+.btn-outline:hover {
+  background: #e9ecef;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+/* Formulir */
+.form-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px 28px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #343a40;
+  font-size: 14px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+}
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* Desain Responsif Ponsel (360px) */
+@media (max-width: 600px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  nav {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  nav .user-meta {
+    margin-left: 0;
+    padding-left: 0;
+    border-left: none;
+    width: 100%;
+    justify-content: space-between;
+    padding-top: 8px;
+    border-top: 1px solid #495057;
+  }
+  table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}

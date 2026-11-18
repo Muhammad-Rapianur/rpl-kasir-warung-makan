@@ -259,5 +259,50 @@ def hapus_menu(menu_id):
         db.execute("DELETE FROM menu WHERE id = ?", (menu_id,))
 
 
+# ============================================================
+# Modul Pengguna & Autentikasi (Jobsheet 11)
+# ============================================================
+
+def ambil_pengguna(pengguna_id):
+    """Mengambil satu data pengguna berdasarkan id."""
+    with koneksi() as db:
+        return db.execute(
+            "SELECT id, username, password_hash, nama_lengkap, peran FROM pengguna WHERE id = ?",
+            (pengguna_id,),
+        ).fetchone()
+
+
+def cari_pengguna(username):
+    """Mencari satu data pengguna berdasarkan username persis."""
+    with koneksi() as db:
+        return db.execute(
+            "SELECT id, username, password_hash, nama_lengkap, peran FROM pengguna WHERE username = ?",
+            ((username or "").strip(),),
+        ).fetchone()
+
+
+def tambah_pengguna(username, password_hash, nama_lengkap, peran):
+    """Menambahkan akun pengguna baru dengan password yang telah di-hash secara aman."""
+    with koneksi() as db:
+        cursor = db.execute(
+            """
+            INSERT INTO pengguna (username, password_hash, nama_lengkap, peran)
+            VALUES (?, ?, ?, ?)
+            """,
+            (username.strip(), password_hash, nama_lengkap.strip(), peran.strip()),
+        )
+        return cursor.lastrowid
+
+
+def perbarui_password_pengguna(pengguna_id, password_hash):
+    """Memperbarui hash password pengguna berdasarkan ID."""
+    with koneksi() as db:
+        db.execute(
+            "UPDATE pengguna SET password_hash = ? WHERE id = ?",
+            (password_hash, pengguna_id),
+        )
+
+
+
 
 
