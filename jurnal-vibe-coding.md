@@ -22,6 +22,10 @@
 | **12** | **[JS 10 / Siklus 1] Daftar Transaksi dengan JOIN & Agregasi** | Konteks: `schema.sql` (`transaksi`, `detail_transaksi`, `pengguna`, `menu`). Buat fungsi `semua_transaksi()` di `models.py` dengan `JOIN pengguna` (nama kasir), `LEFT JOIN detail_transaksi` & `menu` (agregasi `SUM` total tagihan & `GROUP_CONCAT` rincian porsi), rute `GET /transaksi`, dan `templates/transaksi_list.html`. | Dihasilkan kueri agregasi multi-tabel efisien, rute `GET /transaksi`, dan tabel riwayat sesuai wireframe `wf-05`. Diuji via test client: nama kasir asli (`Kasir Utama`), rincian menu (`Ayam Goreng (2x)...`), dan total tagihan tampil akurat. | **Terima** | Memenuhi kriteria G1 & KF-11; kueri JOIN bersih dengan alias jelas; total dihitung dinamis (*computed*) tanpa redundansi data; lapisan MVC konsisten. |
 | **13** | **[JS 10 / Siklus 2] Form Catat Transaksi Baru (G2 — Validasi Pilihan Induk)** | Konteks: `services.py`, `models.py`, `app.py`, `templates/transaksi_form.html`. Buat fungsi `validasi_transaksi()` di `services.py`, rute `GET & POST /transaksi/tambah`, dan form HTML lengkap dengan pilihan `<select>` menu hidangan. Batasan: uji 6 skenario masukan (valid, belum pilih induk, jumlah negatif, non-angka, tanggal non-ISO, ID menu fiktif 999). | Dihasilkan validasi 5 aturan masukan. Diuji: (1) transaksi valid tersimpan, (2) menu kosong ditolak, (3) jumlah negatif ditolak, (4) teks 'abc' ditolak, (5) tanggal non-ISO ditolak, (6) menu fiktif 999 ditolak dengan pesan ramah. 6/6 LULUS. | **Terima** | Memenuhi kriteria G2 & KF-10; validasi server mencegah anomali data; pengecekan integritas menu sebelum proses simpan. |
 | **14** | **[JS 10 / Siklus 3] Transaksi Atomik Dua Tabel (G3 — with koneksi())** | Konteks: `models.py`, `tests/test_modul_berelasi.py`. Simpan `transaksi` header dan `detail_transaksi` dalam satu blok `with koneksi() as db:`. Buktikan atomisitas: jika baris kedua gagal, baris pertama harus dibatalkan (rollback). | Dihasilkan fungsi `tambah_transaksi_dengan_detail()`. Pengujian skrip membuktikan kegagalan disengaja melempar `IntegrityError` dan jumlah baris kedua tabel tetap sama (0 jejak sebagian). | **Terima** | Memenuhi kriteria G3 & KNF-05; menjamin integritas referensial dan konsistensi data finansial warung makan. |
+| **15** | **[JS 10 / Siklus 4] Pencarian Aman Menu Hidangan (G4)** | Konteks: `models.py`, `app.py`, `templates/menu_list.html`. Tambahkan pencarian nama menu dengan parameter `GET ?q=...`, kueri `LIKE ? ESCAPE '\'`, dan escaping wildcard `%` serta `_` via `_escape_like()`. | Dihasilkan pencarian berparameter aman. Diuji: (1) sebagian nama berhasil cocok, (2) menu tidak ada tampil pesan ramah, (3) tanda `%` dicari harfiah tanpa error, (4) payload `' OR 1=1 --` dinetralkan sempurna. 4/4 LULUS. | **Terima** | Memenuhi kriteria G4 & KNF-06; query berparameter mencegah SQL Injection; escaping karakter wildcard menjaga presisi pencarian. |
+| **16** | **[JS 10 / Siklus 5] Penyaringan Terintegrasi Kategori & Status (G4)** | Konteks: `models.py`, `app.py`, `templates/menu_list.html`. Gabungkan pencarian teks dengan filter dropdown `kategori_id` dan `status` ketersediaan (tersedia/habis). | Dihasilkan kueri dinamis terstruktur (hanya potongan statis aman yang dirakit oleh programmer). Diuji gabungan `?q=ayam&status=tersedia` menyaring data dengan tepat. | **Terima** | Mendukung kenyamanan operasional kasir (KF-01); query string GET memungkinkan tautan dibagikan atau di-bookmark. |
+| **17** | **[JS 10 / Debug] Penelusuran SyntaxError Docstring dan Penyesuaian Kolom** | Konteks: File `services.py` dan terminal debugging. Traceback: `SyntaxError: unterminated triple-quoted string literal (line 155)`. Lacak traceback dari bawah ke atas. | Ditemukan baris docstring pembuka hilang saat pengeditan sehingga Python membaca seluruh kode sebagai teks string literal. Dilakukan perbaikan posisi docstring. | **Ubah** | Memahami anatomi error sintaks Python; verifikasi cepat `python -c 'import <modul>'` mencegah crash pada runtime server. |
+| **18** | **[JS 10 / Siklus 6] Refactoring Ekstraksi _render_menu_form()** | Konteks: `app.py`. Hilangkan duplikasi pemanggilan `render_template('menu_form.html', ...)` pada rute `tambah_menu` dan `ubah_menu`. Verifikasi via `tests/uji_cepat.py` sebelum dan sesudah perubahan. | Dihasilkan fungsi bantu `_render_menu_form()` (menghemat 16 baris kode berulang). Uji regresi 5 modul dijalankan ulang dan **SEMUA UJI REGRESI LULUS 100%**. | **Terima** | Mematuhi prinsip DRY (*Don't Repeat Yourself*); perilaku program tetap sama dan terbukti stabil lewat automated regression testing. |
 
 ---
 
@@ -33,12 +37,13 @@
 
 ---
 
-### Analisis Proporsi Keputusan Sementara (Langkah 15):
-- **Total Entri Siklus:** 11 siklus (Siklus 1 s.d. 11)
-- **Diterima (Terima):** 10 entri (**90,9%**)
+### Analisis Proporsi Keputusan Akhir Jobsheet 10 (Langkah 17):
+- **Total Entri Siklus:** 18 siklus (Jobsheet 9: 11 entri; Jobsheet 10: 7 entri baru)
+- **Entri Debugging [Debug]:** 2 entri (Siklus 8 & Siklus 17) — *Memenuhi syarat minimal ≥ 2 [Debug]*
+- **Diterima (Terima):** 16 entri (**88,9%**)
   - *Karakteristik:* Saran AI diterima karena langsung mematuhi kriteria penerimaan, menggunakan query berparameter, dan mematuhi arsitektur 3-tier.
-- **Diubah (Ubah):** 1 entri (**9,1%**)
-  - *Karakteristik:* Kode disesuaikan secara mandiri pada sesi debugging (format mata uang dialihkan ke custom filter Jinja2 dan penambahan kolom wajib `tanggal_waktu` pada kueri pengujian).
+- **Diubah (Ubah):** 2 entri (**11,1%**)
+  - *Karakteristik:* Kode disesuaikan secara mandiri pada sesi debugging (format mata uang dialihkan ke custom filter Jinja2 dan penanganan docstring serta isolasi db sementara).
 - **Ditolak (Tolak):** 0 entri (**0%**)
-  - *Karakteristik:* Prompt yang diberikan sudah sangat spesifik (*small-chunk incremental prompting*) sehingga AI tidak menghasilkan kode melenceng atau menambahkan dependensi di luar lingkup.
+  - *Karakteristik:* Prompt yang diberikan sangat spesifik (*small-chunk incremental prompting*) sehingga kode AI tidak keluar dari batasan arsitektur.
 

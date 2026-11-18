@@ -11,6 +11,32 @@
   <a href="/menu/tambah" class="btn btn-primary">+ Tambah Menu Baru</a>
 </div>
 
+<!-- Form Pencarian dan Penyaringan (Langkah 9 & 10) -->
+<form method="get" action="/menu" style="background: white; border: 1px solid var(--border); border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+  <div style="flex: 2; min-width: 200px;">
+    <input type="text" name="q" value="{{ kata }}" placeholder="Cari nama menu hidangan..." class="form-control">
+  </div>
+  <div style="flex: 1; min-width: 150px;">
+    <select name="kategori" class="form-control">
+      <option value="">-- Semua Kategori --</option>
+      {% for k in kategori %}
+        <option value="{{ k['id'] }}" {% if kategori_terpilih == k['id'] %}selected{% endif %}>{{ k['nama'] }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div style="flex: 1; min-width: 130px;">
+    <select name="status" class="form-control">
+      <option value="">-- Semua Status --</option>
+      <option value="tersedia" {% if status_terpilih == 'tersedia' %}selected{% endif %}>Tersedia</option>
+      <option value="habis" {% if status_terpilih == 'habis' %}selected{% endif %}>Habis</option>
+    </select>
+  </div>
+  <button type="submit" class="btn btn-primary">Cari &amp; Filter</button>
+  {% if kata or kategori_terpilih or status_terpilih %}
+    <a href="/menu" class="btn btn-outline">Atur Ulang</a>
+  {% endif %}
+</form>
+
 <table>
   <thead>
     <tr>
@@ -46,7 +72,11 @@
     {% else %}
     <tr>
       <td colspan="6" class="text-center" style="padding: 32px; color: #6c757d;">
-        Belum ada menu yang terdaftar di sistem.
+        {% if kata or kategori_terpilih or status_terpilih %}
+          Tidak ada menu hidangan yang cocok dengan kriteria pencarian/filter.
+        {% else %}
+          Belum ada menu yang terdaftar di sistem.
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

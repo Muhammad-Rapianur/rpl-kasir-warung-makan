@@ -32,17 +32,38 @@ def init_db():
             db.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
+def _escape_like(teks):
+    """Netralkan karakter % dan _ agar dicari secara harfiah sebagai teks biasa."""
+    return teks.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+def cari_menu(kata="", kategori_id=None, status=None):
+    """Daftar menu dengan pencarian nama aman (LIKE ? ESCAPE '\\') dan penyaringan (Langkah 9 & 10)."""
+    sql = """
+        SELECT m.id, m.nama, m.harga, m.status, m.kategori_id, k.nama AS nama_kategori
+        FROM menu m
+        JOIN kategori k ON m.kategori_id = k.id
+        WHERE m.nama LIKE ? ESCAPE '\\'
+    """
+    param = ["%" + _escape_like(kata) + "%"]
+
+    if kategori_id:
+        sql += " AND m.kategori_id = ?"
+        param.append(kategori_id)
+
+    if status and status in ("tersedia", "habis"):
+        sql += " AND m.status = ?"
+        param.append(status)
+
+    sql += " ORDER BY m.nama ASC"
+
+    with koneksi() as db:
+        return db.execute(sql, param).fetchall()
+
+
 def semua_menu():
     """Mengambil seluruh daftar menu beserta nama kategorinya, diurutkan berdasarkan nama."""
-    with koneksi() as db:
-        return db.execute(
-            """
-            SELECT m.id, m.nama, m.harga, m.status, m.kategori_id, k.nama AS nama_kategori
-            FROM menu m
-            JOIN kategori k ON m.kategori_id = k.id
-            ORDER BY m.nama ASC
-            """
-        ).fetchall()
+    return cari_menu()
 
 
 def semua_kategori():
