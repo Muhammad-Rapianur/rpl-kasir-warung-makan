@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block judul %}Masuk — KasirWarung{% endblock %}
+
+{% block isi %}
+<div class="form-card" style="max-width: 420px; margin: 40px auto; padding: 32px;">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <h1 style="margin: 0 0 8px 0; font-size: 24px; color: #212529;">Masuk Sistem</h1>
+    <p style="margin: 0; color: #6c757d; font-size: 14px;">Aplikasi Kasir &amp; Manajemen Warung Makan</p>
+  </div>
+
+  {% if galat %}
+    <div class="pesan-flash pesan-galat" role="alert" style="margin-bottom: 20px;">
+      <ul style="margin: 0; padding-left: 20px;">
+        {% for g in galat %}
+          <li>{{ g }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post" action="">
+    <div class="form-group">
+      <label for="username">Nama Pengguna (Username)</label>
+      <input 
+        type="text" 
+        id="username" 
+        name="username" 
+        class="form-control" 
+        value="{{ username }}" 
+        required 
+        maxlength="30" 
+        autocomplete="username" 
+        autofocus 
+        placeholder="Masukkan nama pengguna"
+      >
+    </div>
+
+    <div class="form-group" style="margin-top: 16px;">
+      <label for="password">Kata Sandi (Password)</label>
+      <input 
+        type="password" 
+        id="password" 
+        name="password" 
+        class="form-control" 
+        required 
+        autocomplete="current-password" 
+        placeholder="Masukkan kata sandi"
+      >
+    </div>
+
+    <div style="margin-top: 24px;">
+      <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">
+        Masuk
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

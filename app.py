@@ -1,7 +1,8 @@
 import os
 import sqlite3
 from datetime import date
-from flask import Flask, abort, flash, redirect, render_template, request, url_for
+from functools import wraps
+from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 import models
 import services
 
@@ -10,8 +11,28 @@ app = Flask(__name__)
 # Kunci rahasia dibaca dari variabel lingkungan; nilai default hanya untuk pengembangan lokal.
 app.secret_key = os.environ.get("SECRET_KEY", "dev-only-kasir-warung-2026")
 
+# Konfigurasi keamanan cookie sesi Flask (Jobsheet 11 - H2)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+)
+
 # Inisialisasi basis data SQLite saat aplikasi pertama kali dimuat
 models.init_db()
+
+
+def _tujuan_aman(tujuan):
+    """Mencegah serangan Open Redirect: hanya menerima path internal dalam situs."""
+    if tujuan and tujuan.startswith("/") and not tujuan.startswith("//") and "\\" not in tujuan:
+        return tujuan
+    return None
+
+
+@app.before_request
+def muat_pengguna():
+    """Memuat data g.pengguna dari basis data berdasarkan session pengguna_id pada setiap request."""
+    pengguna_id = session.get("pengguna_id")
+    g.pengguna = models.ambil_pengguna(pengguna_id) if pengguna_id else None
 
 
 @app.template_filter("rupiah")
@@ -21,6 +42,43 @@ def format_rupiah(nilai):
         return f"Rp {int(nilai):,}".replace(",", ".")
     except (ValueError, TypeError):
         return f"Rp {nilai}"
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Halaman dan proses autentikasi login (Jobsheet 11 - Fitur H2)."""
+    if g.pengguna:
+        return redirect(url_for("daftar_menu"))
+
+    galat = []
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        pengguna = services.autentikasi(username, password)
+        if pengguna:
+            session.clear()  # Regenerasi sesi (cegah session fixation)
+            session["pengguna_id"] = pengguna["id"]
+            flash(f"Selamat datang, {pengguna['nama_lengkap']}!")
+            tujuan = _tujuan_aman(request.args.get("next"))
+            return redirect(tujuan or url_for("daftar_menu"))
+
+        # Satu pesan umum untuk mencegah kebocoran keberadaan username
+        galat.append("Nama pengguna atau kata sandi salah.")
+
+    return render_template(
+        "login.html",
+        galat=galat,
+        username=request.form.get("username", ""),
+    )
+
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    """Proses keluar akun yang aman: hanya menerima metode POST (Jobsheet 11 - H2)."""
+    session.clear()
+    flash("Anda telah berhasil keluar dari sistem kasir.")
+    return redirect(url_for("login"))
 
 
 @app.route("/")
