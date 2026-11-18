@@ -1,24 +1,43 @@
+import logging
 import os
+import secrets
 import sqlite3
 from datetime import date
 from functools import wraps
 from flask import Flask, abort, flash, g, redirect, render_template, request, session, url_for
 import models
+import percobaan
 import services
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
-# Kunci rahasia dibaca dari variabel lingkungan; nilai default hanya untuk pengembangan lokal.
-app.secret_key = os.environ.get("SECRET_KEY", "dev-only-kasir-warung-2026")
+# Konfigurasi Lingkungan: Pada mode produksi (APP_ENV=production), SECRET_KEY wajib diatur
+PRODUKSI = os.environ.get("APP_ENV") == "production"
+app.secret_key = os.environ.get("SECRET_KEY")
+if not app.secret_key:
+    if PRODUKSI:
+        raise RuntimeError("FATAL: Variabel lingkungan SECRET_KEY wajib diatur pada mode produksi.")
+    app.secret_key = "dev-only-kasir-warung-2026"
 
-# Konfigurasi keamanan cookie sesi Flask (Jobsheet 11 - H2)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=PRODUKSI,
 )
 
 # Inisialisasi basis data SQLite saat aplikasi pertama kali dimuat
 models.init_db()
+
+
+def csrf_token():
+    """Menghasilkan token CSRF acak unik per sesi pengguna (Jobsheet 12 - Langkah 11)."""
+    if "csrf_token" not in session:
+        session["csrf_token"] = secrets.token_hex(16)
+    return session["csrf_token"]
+
+
+app.jinja_env.globals["csrf_token"] = csrf_token
 
 
 def _tujuan_aman(tujuan):
@@ -35,16 +54,34 @@ def muat_pengguna():
     g.pengguna = models.ambil_pengguna(pengguna_id) if pengguna_id else None
 
 
+@app.before_request
+def periksa_csrf():
+    """Memverifikasi token CSRF pada setiap permintaan ber-metode HTTP POST (Langkah 11)."""
+    if request.method == "POST":
+        dikirim = request.form.get("csrf_token", "").encode()
+        asli = session.get("csrf_token", "").encode()
+        if not asli or not secrets.compare_digest(dikirim, asli):
+            app.logger.warning("CSRF gagal: path=%r ip=%s", request.path, request.remote_addr)
+            abort(400)
+
+
+@app.after_request
+def tambah_header_keamanan(respons):
+    """Menyuntikkan header perlindungan peramban standar (Jobsheet 12 - Langkah 13)."""
+    respons.headers["X-Content-Type-Options"] = "nosniff"
+    respons.headers["X-Frame-Options"] = "DENY"
+    respons.headers["Referrer-Policy"] = "same-origin"
+    return respons
+
+
 def peran_diperlukan(*peran):
     """Batasi rute: belum masuk -> dialihkan ke /login?next=...; peran tidak cocok -> 403 (Jobsheet 11 - H3)."""
     def dekorator(fungsi):
         @wraps(fungsi)
         def bungkus(*args, **kwargs):
             if g.pengguna is None:
-                # Tamu diarahkan ke login membawa parameter next
                 return redirect(url_for("login", next=request.full_path.rstrip("?")))
             if g.pengguna["peran"] not in peran:
-                # Peran tidak berhak ditolak dengan 403 Forbidden
                 abort(403)
             return fungsi(*args, **kwargs)
         return bungkus
@@ -55,9 +92,17 @@ semua_peran = peran_diperlukan(*services.PERAN)
 hanya_pemilik = peran_diperlukan("pemilik")
 
 
+@app.errorhandler(400)
+def permintaan_buruk(_galat):
+    """Halaman 400 jika token CSRF tidak valid."""
+    return render_template("400.html"), 400
+
+
 @app.errorhandler(403)
 def akses_dilarang(_galat):
     """Menampilkan halaman 403 yang ramah pengguna jika hak akses peran tidak terpenuhi."""
+    nama_user = g.pengguna["username"] if g.get("pengguna") else "anonim"
+    app.logger.warning("Akses ditolak (403): user=%r path=%r ip=%s", nama_user, request.path, request.remote_addr)
     return render_template("403.html"), 403
 
 
@@ -72,31 +117,47 @@ def format_rupiah(nilai):
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Halaman dan proses autentikasi login (Jobsheet 11 - Fitur H2)."""
+    """Halaman dan proses autentikasi login dengan proteksi Brute-Force & Rate Limiting (Langkah 12)."""
     if g.pengguna:
         return redirect(url_for("daftar_menu"))
 
-    galat = []
+    galat, status_code = [], 200
+    username_input = request.form.get("username", "").strip()
+
     if request.method == "POST":
-        username = request.form.get("username", "").strip()
-        password = request.form.get("password", "")
+        kunci_percobaan = f"{request.remote_addr}|{username_input.lower()}"
 
-        pengguna = services.autentikasi(username, password)
-        if pengguna:
-            session.clear()  # Regenerasi sesi (cegah session fixation)
-            session["pengguna_id"] = pengguna["id"]
-            flash(f"Selamat datang, {pengguna['nama_lengkap']}!")
-            tujuan = _tujuan_aman(request.args.get("next"))
-            return redirect(tujuan or url_for("daftar_menu"))
+        # 1. Periksa apakah akun/IP sedang dalam masa hukuman terkunci (HTTP 429)
+        if percobaan.terkunci(kunci_percobaan):
+            app.logger.warning("Login terkunci (429): user=%r ip=%s", username_input, request.remote_addr)
+            galat.append("Terlalu banyak percobaan login gagal. Silakan coba kembali dalam 5 menit.")
+            status_code = 429
+        else:
+            password_input = request.form.get("password", "")
+            pengguna = services.autentikasi(username_input, password_input)
 
-        # Satu pesan umum untuk mencegah kebocoran keberadaan username
-        galat.append("Nama pengguna atau kata sandi salah.")
+            if pengguna:
+                percobaan.reset(kunci_percobaan)
+                session.clear()  # Regenerasi sesi (cegah session fixation)
+                session["pengguna_id"] = pengguna["id"]
+                # Inisialisasi token CSRF baru setelah login
+                session["csrf_token"] = secrets.token_hex(16)
+                app.logger.info("Login berhasil: user=%r ip=%s peran=%s", pengguna["username"], request.remote_addr, pengguna["peran"])
+                flash(f"Selamat datang, {pengguna['nama_lengkap']}!")
+                tujuan = _tujuan_aman(request.args.get("next"))
+                return redirect(tujuan or url_for("daftar_menu"))
+
+            # Kredensial salah: catat kegagalan dan log insiden
+            percobaan.catat_gagal(kunci_percobaan)
+            app.logger.warning("Login gagal: user=%r ip=%s", username_input, request.remote_addr)
+            galat.append("Nama pengguna atau kata sandi salah.")
+            status_code = 401
 
     return render_template(
         "login.html",
         galat=galat,
-        username=request.form.get("username", ""),
-    )
+        username=username_input,
+    ), status_code
 
 
 @app.route("/logout", methods=["POST"])
@@ -390,4 +451,5 @@ def tambah_transaksi():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    # Mode debug hanya bila diminta via lingkungan (FLASK_DEBUG=1) dan TIDAK PERNAH pada produksi
+    app.run(debug=os.environ.get("FLASK_DEBUG") == "1" and not PRODUKSI)

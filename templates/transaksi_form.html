@@ -17,6 +17,7 @@
   {% endif %}
 
   <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <div class="form-group">
       <label for="menu_id">Pilih Menu Hidangan (Tabel Induk) <span style="color: red;">*</span></label>
       <select id="menu_id" name="menu_id" class="form-control" required>

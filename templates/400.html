@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block judul %}400 — Permintaan Tidak Valid{% endblock %}
+
+{% block isi %}
+<div class="form-card" style="max-width: 600px; margin: 40px auto; padding: 32px; text-align: left;">
+  <h1 style="margin-top: 0; font-size: 26px; color: #b3261e; border-bottom: 2px solid #f5c2c7; padding-bottom: 12px;">
+    400 — Permintaan Tidak Valid (CSRF Gagal)
+  </h1>
+
+  <div class="pesan-flash pesan-galat" role="alert" style="margin: 20px 0; font-size: 16px;">
+    <strong>Validasi Keamanan Gagal:</strong> Token keamanan sesi (CSRF Token) tidak ditemukan atau tidak valid. Permintaan formulir ditolak oleh server demi melindungi akun Anda dari pemalsuan permintaan lintas situs.
+  </div>
+
+  <p style="color: #6c757d; line-height: 1.6;">
+    Silakan kembali ke halaman sebelumnya, muat ulang formulir, dan kirimkan kembali data Anda.
+  </p>
+
+  <div style="margin-top: 24px;">
+    <a href="{{ url_for('daftar_menu') }}" class="btn btn-primary" style="padding: 10px 20px;">
+      &larr; Kembali ke Beranda
+    </a>
+  </div>
+</div>
+{% endblock %}

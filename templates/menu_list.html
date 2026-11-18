@@ -70,6 +70,7 @@
         <td class="text-center">
           <a href="/menu/{{ m['id'] }}/ubah" class="btn btn-sm btn-outline">Ubah</a>
           <form method="post" action="/menu/{{ m['id'] }}/hapus" style="display: inline;" onsubmit="return confirm('Hapus menu ini?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn btn-sm btn-outline" style="color: #dc3545; border-color: #f5c2c7;">Hapus</button>
           </form>
         </td>
