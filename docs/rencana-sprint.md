@@ -29,15 +29,20 @@ Dokumen ini memetakan rencana pelaksanaan 4 siklus *Sprint* untuk menyelesaikan 
 
 ## 3. Rincian Alokasi Fitur per Sprint
 
-### 🔹 Sprint 1 (Minggu 9–10): Fondasi Kerangka, CRUD Entitas, dan Relasi
-- **Fokus Utama:** Menyelesaikan kerangka berlapis Flask + SQLite dan manajemen master data.
+### 🔹 Sprint 1 (Minggu 9–10): Fondasi Kerangka, CRUD Entitas, Relasi, dan Pencarian
+- **Status:** ✅ **SELESAI 100% (Jobsheet 9 & Jobsheet 10)**
+- **Fokus Utama:** Menyelesaikan kerangka berlapis Flask + SQLite, manajemen master data, relasi multi-tabel, pencarian aman, debugging, dan pengujian regresi.
 - **Butir Backlog yang Diselesaikan:**
-  - `T-1.1 & T-1.2`: Kerangka MVC Flask, `.venv`, `requirements.txt`, dan koneksi basis data SQLite `kasir_warung.db` dari `schema.sql` (Selesai pada JS 9).
+  - `T-1.1 & T-1.2`: Kerangka MVC Flask, `.venv`, `requirements.txt`, dan basis data SQLite `kasir_warung.db` dari `schema.sql` (Selesai pada JS 9).
   - `T-1.3 / KF-01`: Modul CRUD Menu lengkap (`GET /menu`, `POST /menu/tambah`, `POST /menu/<id>/ubah`, `POST /menu/<id>/hapus`) dengan validasi server (Selesai pada JS 9).
   - `KF-01 (Kategori)`: Modul CRUD Kategori dengan query agregasi jumlah hidangan dan proteksi foreign key (Selesai pada JS 9).
-  - **Pekerjaan Minggu Depan (Pertemuan 10):**
-    - Fitur pencarian (*search bar*) nama menu dan penyaringan (*filtering*) hidangan berdasarkan kategori di layar kasir.
-- **Target Entri Jurnal:** Minimal 12 entri.
+  - `G1 & KF-11`: Riwayat Transaksi Penjualan dengan JOIN 4 tabel (`transaksi`, `pengguna`, `detail_transaksi`, `menu`) dan kalkulasi total dinamis (Selesai pada JS 10).
+  - `G2 & KF-10`: Form Catat Transaksi Baru dengan validasi masukan relasi induk-anak (Selesai pada JS 10).
+  - `G3 & KNF-05`: Transaksi Atomik Multi-Tabel (`with koneksi()`) terbukti rollback 100% aman (Selesai pada JS 10).
+  - `G4 / Pencarian & Filter`: Pencarian nama menu aman (`LIKE ? ESCAPE '\'`) dan filter gabungan kategori serta status (Selesai pada JS 10).
+  - `Uji Cepat Regresi`: Suite pengujian otomatis terisolasi dengan basis data sementara di `tests/uji_cepat.py` (5/5 kategori lulus).
+  - `Refactoring`: Ekstraksi helper `_render_menu_form()` di `app.py`.
+- **Capaian Entri Jurnal:** 18 entri (termasuk 2 entri `[Debug]`) tercatat di `jurnal-vibe-coding.md`.
 
 ---
 
