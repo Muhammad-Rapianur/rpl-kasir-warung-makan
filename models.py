@@ -50,3 +50,13 @@ def semua_kategori():
     with koneksi() as db:
         return db.execute("SELECT id, nama FROM kategori ORDER BY nama ASC").fetchall()
 
+
+def tambah_menu(nama, kategori_id, harga, status="tersedia"):
+    """Menambahkan menu hidangan baru ke dalam basis data SQLite."""
+    with koneksi() as db:
+        db.execute(
+            "INSERT INTO menu (nama, kategori_id, harga, status) VALUES (?, ?, ?, ?)",
+            (nama, kategori_id, harga, status),
+        )
+
+
