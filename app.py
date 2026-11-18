@@ -50,6 +50,18 @@ def daftar_menu():
     )
 
 
+def _render_menu_form(judul, menu, kategori, galat=None, apakah_ubah=False):
+    """Fungsi bantu hasil refactoring untuk merender form menu tanpa duplikasi (Langkah 13)."""
+    return render_template(
+        "menu_form.html",
+        judul=judul,
+        menu=menu,
+        kategori=kategori,
+        galat=galat or [],
+        apakah_ubah=apakah_ubah,
+    )
+
+
 @app.route("/menu/tambah", methods=["GET", "POST"])
 def tambah_menu():
     """Form tambah menu baru (Create - Langkah 6)."""
@@ -66,23 +78,9 @@ def tambah_menu():
                 flash(f"Menu '{data['nama']}' berhasil ditambahkan.")
                 return redirect(url_for("daftar_menu"))
 
-        return render_template(
-            "menu_form.html",
-            judul="Tambah Menu Baru",
-            menu=request.form,
-            kategori=daftar_kategori,
-            galat=galat,
-            apakah_ubah=False,
-        )
+        return _render_menu_form("Tambah Menu Baru", request.form, daftar_kategori, galat, False)
 
-    return render_template(
-        "menu_form.html",
-        judul="Tambah Menu Baru",
-        menu={},
-        kategori=daftar_kategori,
-        galat=[],
-        apakah_ubah=False,
-    )
+    return _render_menu_form("Tambah Menu Baru", {}, daftar_kategori, [], False)
 
 
 @app.route("/menu/<int:menu_id>/ubah", methods=["GET", "POST"])
@@ -115,23 +113,9 @@ def ubah_menu(menu_id):
                 flash(f"Menu '{data['nama']}' berhasil diperbarui.")
                 return redirect(url_for("daftar_menu"))
 
-        return render_template(
-            "menu_form.html",
-            judul="Ubah Menu Hidangan",
-            menu=request.form,
-            kategori=daftar_kategori,
-            galat=galat,
-            apakah_ubah=True,
-        )
+        return _render_menu_form("Ubah Menu Hidangan", request.form, daftar_kategori, galat, True)
 
-    return render_template(
-        "menu_form.html",
-        judul="Ubah Menu Hidangan",
-        menu=dict(menu),
-        kategori=daftar_kategori,
-        galat=[],
-        apakah_ubah=True,
-    )
+    return _render_menu_form("Ubah Menu Hidangan", dict(menu), daftar_kategori, [], True)
 
 
 @app.route("/menu/<int:menu_id>/hapus", methods=["POST"])
