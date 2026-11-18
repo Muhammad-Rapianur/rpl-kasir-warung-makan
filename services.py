@@ -3,7 +3,15 @@
 Berisi validasi input, aturan bisnis kalkulasi, dan aturan data.
 Dilarang memproses rendering HTML atau mengakses SQL secara langsung.
 """
+import re
 from datetime import date, datetime
+from werkzeug.security import check_password_hash, generate_password_hash
+import models
+
+PERAN = ("pemilik", "kasir")
+
+# Hash palsu berasam lambat untuk pertahanan serangan waktu (timing attack)
+_HASH_PALSU = generate_password_hash("bukan-kata-sandi-sungguhan")
 
 
 def _bilangan_positif(teks):
@@ -151,5 +159,67 @@ def validasi_transaksi(form):
         "uang_diterima": uang_diterima,
     }
     return data, galat
+
+
+# ============================================================
+# Modul Autentikasi & Akun Pengguna (Jobsheet 11 - Fitur H1/H2)
+# ============================================================
+
+def validasi_pengguna_baru(username, password, peran, nama_lengkap=""):
+    """Validasi input registrasi akun baru.
+
+    - username: 3-30 karakter alfanumerik atau garis bawah (_).
+    - password: minimal 8 karakter.
+    - peran: wajib 'pemilik' atau 'kasir'.
+    - nama_lengkap: minimal 2 karakter.
+    """
+    galat = []
+    usr = (username or "").strip()
+    pwd = password or ""
+    prn = (peran or "").strip()
+    nama = (nama_lengkap or "").strip()
+
+    if not re.fullmatch(r"[A-Za-z0-9_]{3,30}", usr):
+        galat.append("Nama pengguna harus terdiri dari 3–30 karakter alfanumerik atau garis bawah (_).")
+
+    if len(pwd) < 8:
+        galat.append("Kata sandi minimal terdiri dari 8 karakter.")
+
+    if prn not in PERAN:
+        galat.append("Peran pengguna harus 'pemilik' atau 'kasir'.")
+
+    if not nama or len(nama) < 2:
+        galat.append("Nama lengkap pengguna minimal 2 karakter.")
+
+    return galat
+
+
+def buat_pengguna(username, password, peran, nama_lengkap=""):
+    """Mendaftarkan akun baru ke basis data dengan kata sandi ter-hash scrypt/pbkdf2."""
+    galat = validasi_pengguna_baru(username, password, peran, nama_lengkap)
+    if not galat:
+        hash_pwd = generate_password_hash(password)
+        models.tambah_pengguna(username, hash_pwd, nama_lengkap, peran)
+    return galat
+
+
+def autentikasi(username, password):
+    """Verifikasi kredensial pengguna saat login (Jobsheet 11 - H2).
+
+    Mengembalikan record pengguna jika username & password cocok, atau None jika gagal.
+    Menggunakan _HASH_PALSU saat username tidak ada demi mencegah serangan waktu (timing attack).
+    """
+    usr = (username or "").strip()
+    pwd = password or ""
+
+    pengguna = models.cari_pengguna(usr)
+    # Gunakan hash pengguna asli bila ada, atau hash palsu bila tidak ada
+    hash_pembanding = pengguna["password_hash"] if pengguna else _HASH_PALSU
+
+    cocok = check_password_hash(hash_pembanding, pwd)
+    if pengguna and cocok:
+        return pengguna
+    return None
+
 
 
