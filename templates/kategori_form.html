@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block judul %}{{ judul }} — KasirWarung{% endblock %}
+
+{% block isi %}
+<div class="form-card">
+  <h1 style="margin-top: 0; font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">{{ judul }}</h1>
+
+  {% if galat %}
+    <div class="pesan-flash pesan-galat" style="margin-bottom: 16px;">
+      <ul style="margin: 0; padding-left: 20px;">
+        {% for g in galat %}
+          <li>{{ g }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post">
+    <div class="form-group">
+      <label for="nama">Nama Kategori <span style="color: red;">*</span></label>
+      <input type="text" id="nama" name="nama" class="form-control" placeholder="Contoh: Aneka Jus & Es" value="{{ kategori.get('nama', '') }}" required>
+      <small style="color: #6c757d;">Minimal 3 karakter, harus unik (tidak boleh kembar).</small>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Simpan Kategori</button>
+      <a href="{{ url_for('daftar_kategori') }}" class="btn btn-outline" style="padding: 10px 20px;">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

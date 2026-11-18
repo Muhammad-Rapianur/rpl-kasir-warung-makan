@@ -56,3 +56,21 @@ def validasi_menu(form):
         "harga": harga,
     }
     return data_bersih, galat
+
+
+def validasi_kategori(form):
+    """Validasi form tambah/ubah kategori.
+
+    - Nama kategori wajib diisi.
+    - Minimal 3 karakter.
+    """
+    galat = []
+    nama = (form.get("nama") or "").strip()
+
+    if not nama:
+        galat.append("Nama kategori wajib diisi.")
+    elif len(nama) < 3:
+        galat.append("Nama kategori minimal 3 karakter.")
+
+    return {"nama": nama}, galat
+

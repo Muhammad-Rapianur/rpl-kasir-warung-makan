@@ -141,7 +141,99 @@ def hapus_menu(menu_id):
     return redirect(url_for("daftar_menu"))
 
 
+# ============================================================
+# Modul CRUD Entitas Kedua: Kategori (Langkah 14 - PT & BM)
+# ============================================================
 
+@app.route("/kategori")
+def daftar_kategori():
+    """Halaman daftar seluruh kategori hidangan."""
+    kategori = models.semua_kategori_detail()
+    return render_template("kategori_list.html", kategori=kategori)
+
+
+@app.route("/kategori/tambah", methods=["GET", "POST"])
+def tambah_kategori():
+    """Form tambah kategori baru."""
+    if request.method == "POST":
+        data, galat = services.validasi_kategori(request.form)
+        if not galat:
+            try:
+                models.tambah_kategori(data["nama"])
+            except sqlite3.IntegrityError:
+                galat.append(f"Kategori '{data['nama']}' sudah terdaftar.")
+            else:
+                flash(f"Kategori '{data['nama']}' berhasil ditambahkan.")
+                return redirect(url_for("daftar_kategori"))
+
+        return render_template(
+            "kategori_form.html",
+            judul="Tambah Kategori Baru",
+            kategori=request.form,
+            galat=galat,
+        )
+
+    return render_template(
+        "kategori_form.html",
+        judul="Tambah Kategori Baru",
+        kategori={},
+        galat=[],
+    )
+
+
+@app.route("/kategori/<int:kategori_id>/ubah", methods=["GET", "POST"])
+def ubah_kategori(kategori_id):
+    """Form ubah nama kategori."""
+    kategori = models.ambil_kategori(kategori_id)
+    if kategori is None:
+        abort(404)
+
+    if request.method == "POST":
+        data, galat = services.validasi_kategori(request.form)
+        if not galat:
+            try:
+                models.ubah_kategori(kategori_id, data["nama"])
+            except sqlite3.IntegrityError:
+                galat.append(f"Kategori '{data['nama']}' sudah terdaftar.")
+            else:
+                flash(f"Kategori '{data['nama']}' berhasil diperbarui.")
+                return redirect(url_for("daftar_kategori"))
+
+        return render_template(
+            "kategori_form.html",
+            judul="Ubah Kategori",
+            kategori=request.form,
+            galat=galat,
+        )
+
+    return render_template(
+        "kategori_form.html",
+        judul="Ubah Kategori",
+        kategori=dict(kategori),
+        galat=[],
+    )
+
+
+@app.route("/kategori/<int:kategori_id>/hapus", methods=["POST"])
+def hapus_kategori(kategori_id):
+    """Hapus kategori (hanya POST).
+
+    Menolak penghapusan bila kategori masih dirujuk oleh tabel menu.
+    """
+    kategori = models.ambil_kategori(kategori_id)
+    if kategori is None:
+        abort(404)
+
+    try:
+        models.hapus_kategori(kategori_id)
+    except sqlite3.IntegrityError:
+        flash(
+            f"Kategori '{kategori['nama']}' tidak dapat dihapus karena masih digunakan oleh menu hidangan."
+        )
+    else:
+        flash(f"Kategori '{kategori['nama']}' berhasil dihapus.")
+
+    return redirect(url_for("daftar_kategori"))
 
 
 if __name__ == "__main__":

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block judul %}Daftar Kategori — KasirWarung{% endblock %}
+
+{% block isi %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+  <div>
+    <h1 style="margin: 0; font-size: 24px;">Daftar Kategori Hidangan</h1>
+    <p style="margin: 4px 0 0 0; color: #6c757d; font-size: 14px;">Kelola pengelompokan menu masakan warung makan (KF-01)</p>
+  </div>
+  <a href="{{ url_for('tambah_kategori') }}" class="btn btn-primary">+ Tambah Kategori Baru</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 60px;" class="text-center">No</th>
+      <th>Nama Kategori</th>
+      <th class="text-center" style="width: 200px;">Jumlah Menu Terkait</th>
+      <th class="text-center" style="width: 180px;">Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for k in kategori %}
+    <tr>
+      <td class="text-center">{{ loop.index }}</td>
+      <td><strong>{{ k['nama'] }}</strong></td>
+      <td class="text-center">
+        <span class="badge" style="background-color: #e9ecef; color: #495057;">{{ k['jumlah_menu'] }} menu</span>
+      </td>
+      <td class="text-center">
+        <a href="{{ url_for('ubah_kategori', kategori_id=k['id']) }}" class="btn btn-sm btn-outline">Ubah</a>
+        <form method="post" action="{{ url_for('hapus_kategori', kategori_id=k['id']) }}" style="display: inline;" onsubmit="return confirm('Hapus kategori ini?');">
+          <button type="submit" class="btn btn-sm btn-outline" style="color: #dc3545; border-color: #f5c2c7;">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="4" class="text-center" style="padding: 32px; color: #6c757d;">
+        Belum ada kategori yang terdaftar.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

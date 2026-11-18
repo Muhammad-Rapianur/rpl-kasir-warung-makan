@@ -51,6 +51,52 @@ def semua_kategori():
         return db.execute("SELECT id, nama FROM kategori ORDER BY nama ASC").fetchall()
 
 
+def semua_kategori_detail():
+    """Mengambil seluruh kategori beserta jumlah menu terkait (untuk halaman daftar kategori)."""
+    with koneksi() as db:
+        return db.execute(
+            """
+            SELECT k.id, k.nama, COUNT(m.id) AS jumlah_menu
+            FROM kategori k
+            LEFT JOIN menu m ON k.id = m.kategori_id
+            GROUP BY k.id, k.nama
+            ORDER BY k.nama ASC
+            """
+        ).fetchall()
+
+
+def ambil_kategori(kategori_id):
+    """Mengambil satu data kategori berdasarkan id."""
+    with koneksi() as db:
+        return db.execute(
+            "SELECT id, nama FROM kategori WHERE id = ?", (kategori_id,)
+        ).fetchone()
+
+
+def tambah_kategori(nama):
+    """Menambahkan kategori hidangan baru."""
+    with koneksi() as db:
+        db.execute("INSERT INTO kategori (nama) VALUES (?)", (nama,))
+
+
+def ubah_kategori(kategori_id, nama):
+    """Memperbarui nama kategori berdasarkan id."""
+    with koneksi() as db:
+        db.execute(
+            "UPDATE kategori SET nama = ? WHERE id = ?", (nama, kategori_id)
+        )
+
+
+def hapus_kategori(kategori_id):
+    """Menghapus kategori berdasarkan id.
+
+    Memicu sqlite3.IntegrityError jika masih ada menu yang menggunakannya.
+    """
+    with koneksi() as db:
+        db.execute("DELETE FROM kategori WHERE id = ?", (kategori_id,))
+
+
+
 def tambah_menu(nama, kategori_id, harga, status="tersedia"):
     """Menambahkan menu hidangan baru ke dalam basis data SQLite."""
     with koneksi() as db:
