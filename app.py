@@ -35,6 +35,32 @@ def muat_pengguna():
     g.pengguna = models.ambil_pengguna(pengguna_id) if pengguna_id else None
 
 
+def peran_diperlukan(*peran):
+    """Batasi rute: belum masuk -> dialihkan ke /login?next=...; peran tidak cocok -> 403 (Jobsheet 11 - H3)."""
+    def dekorator(fungsi):
+        @wraps(fungsi)
+        def bungkus(*args, **kwargs):
+            if g.pengguna is None:
+                # Tamu diarahkan ke login membawa parameter next
+                return redirect(url_for("login", next=request.full_path.rstrip("?")))
+            if g.pengguna["peran"] not in peran:
+                # Peran tidak berhak ditolak dengan 403 Forbidden
+                abort(403)
+            return fungsi(*args, **kwargs)
+        return bungkus
+    return dekorator
+
+
+semua_peran = peran_diperlukan(*services.PERAN)
+hanya_pemilik = peran_diperlukan("pemilik")
+
+
+@app.errorhandler(403)
+def akses_dilarang(_galat):
+    """Menampilkan halaman 403 yang ramah pengguna jika hak akses peran tidak terpenuhi."""
+    return render_template("403.html"), 403
+
+
 @app.template_filter("rupiah")
 def format_rupiah(nilai):
     """Filter Jinja2 untuk memformat angka ke format mata uang Rupiah (contoh: 15000 -> Rp 15.000)."""
@@ -82,12 +108,14 @@ def logout():
 
 
 @app.route("/")
+@semua_peran
 def beranda():
     """Rute beranda utama yang mengalihkan langsung ke modul menu."""
     return redirect(url_for("daftar_menu"))
 
 
 @app.route("/menu")
+@semua_peran
 def daftar_menu():
     """Halaman daftar menu makanan dan minuman dengan pencarian dan filter (Langkah 9 & 10)."""
     kata = request.args.get("q", "").strip()
@@ -121,8 +149,9 @@ def _render_menu_form(judul, menu, kategori, galat=None, apakah_ubah=False):
 
 
 @app.route("/menu/tambah", methods=["GET", "POST"])
+@hanya_pemilik
 def tambah_menu():
-    """Form tambah menu baru (Create - Langkah 6)."""
+    """Form tambah menu baru (Create - Hanya Pemilik)."""
     daftar_kategori = models.semua_kategori()
 
     if request.method == "POST":
@@ -142,8 +171,9 @@ def tambah_menu():
 
 
 @app.route("/menu/<int:menu_id>/ubah", methods=["GET", "POST"])
+@hanya_pemilik
 def ubah_menu(menu_id):
-    """Form ubah menu hidangan (Update - Langkah 8)."""
+    """Form ubah menu hidangan (Update - Hanya Pemilik)."""
     menu = models.ambil_menu(menu_id)
     if menu is None:
         abort(404)
@@ -177,8 +207,9 @@ def ubah_menu(menu_id):
 
 
 @app.route("/menu/<int:menu_id>/hapus", methods=["POST"])
+@hanya_pemilik
 def hapus_menu(menu_id):
-    """Hapus data menu hidangan (Delete - Langkah 9).
+    """Hapus data menu hidangan (Delete - Hanya Pemilik).
 
     Hanya menerima metode HTTP POST demi keamanan web.
     """
@@ -199,10 +230,11 @@ def hapus_menu(menu_id):
 
 
 # ============================================================
-# Modul CRUD Entitas Kedua: Kategori (Langkah 14 - PT & BM)
+# Modul CRUD Entitas Kedua: Kategori (Hanya Pemilik)
 # ============================================================
 
 @app.route("/kategori")
+@hanya_pemilik
 def daftar_kategori():
     """Halaman daftar seluruh kategori hidangan."""
     kategori = models.semua_kategori_detail()
@@ -210,6 +242,7 @@ def daftar_kategori():
 
 
 @app.route("/kategori/tambah", methods=["GET", "POST"])
+@hanya_pemilik
 def tambah_kategori():
     """Form tambah kategori baru."""
     if request.method == "POST":
@@ -239,6 +272,7 @@ def tambah_kategori():
 
 
 @app.route("/kategori/<int:kategori_id>/ubah", methods=["GET", "POST"])
+@hanya_pemilik
 def ubah_kategori(kategori_id):
     """Form ubah nama kategori."""
     kategori = models.ambil_kategori(kategori_id)
@@ -272,11 +306,9 @@ def ubah_kategori(kategori_id):
 
 
 @app.route("/kategori/<int:kategori_id>/hapus", methods=["POST"])
+@hanya_pemilik
 def hapus_kategori(kategori_id):
-    """Hapus kategori (hanya POST).
-
-    Menolak penghapusan bila kategori masih dirujuk oleh tabel menu.
-    """
+    """Hapus kategori (hanya POST - Hanya Pemilik)."""
     kategori = models.ambil_kategori(kategori_id)
     if kategori is None:
         abort(404)
@@ -294,10 +326,11 @@ def hapus_kategori(kategori_id):
 
 
 # ============================================================
-# Modul Transaksi & Detail Transaksi Berelasi (Jobsheet 10)
+# Modul Transaksi & Detail Transaksi (Semua Peran: Kasir & Pemilik)
 # ============================================================
 
 @app.route("/transaksi")
+@semua_peran
 def daftar_transaksi():
     """Halaman riwayat transaksi penjualan (Read dengan JOIN & Agregasi)."""
     daftar = models.semua_transaksi()
@@ -305,15 +338,15 @@ def daftar_transaksi():
 
 
 @app.route("/transaksi/tambah", methods=["GET", "POST"])
+@semua_peran
 def tambah_transaksi():
-    """Form catat transaksi penjualan baru dengan relasi detail (Langkah 4 & 5)."""
+    """Form catat transaksi penjualan baru dengan relasi detail (Semua Peran)."""
     daftar_menu = models.semua_menu()
     isian_default = {"tanggal": date.today().isoformat(), "jumlah": 1}
 
     if request.method == "POST":
         data, galat = services.validasi_transaksi(request.form)
 
-        # Validasi menu induk (cek apakah menu_id benar-benar ada)
         menu_pilihan = None
         if data["menu_id"]:
             menu_pilihan = models.ambil_menu(data["menu_id"])
@@ -322,6 +355,8 @@ def tambah_transaksi():
 
         if not galat:
             try:
+                # Gunakan ID pengguna yang sedang login di sesi
+                kasir_id = g.pengguna["id"] if g.pengguna else 2
                 nomor_trx = models.tambah_transaksi_dengan_detail(
                     menu_id=data["menu_id"],
                     jumlah=data["jumlah"],
@@ -330,7 +365,7 @@ def tambah_transaksi():
                     nomor_meja=data["nomor_meja"],
                     metode_pembayaran=data["metode_pembayaran"],
                     uang_diterima=data["uang_diterima"],
-                    pengguna_id=2,  # Kasir Utama
+                    pengguna_id=kasir_id,
                 )
             except sqlite3.IntegrityError as err:
                 galat.append(f"Gagal mencatat transaksi: {err}")
