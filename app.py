@@ -236,5 +236,16 @@ def hapus_kategori(kategori_id):
     return redirect(url_for("daftar_kategori"))
 
 
+# ============================================================
+# Modul Transaksi & Detail Transaksi Berelasi (Jobsheet 10)
+# ============================================================
+
+@app.route("/transaksi")
+def daftar_transaksi():
+    """Halaman riwayat transaksi penjualan (Read dengan JOIN & Agregasi)."""
+    daftar = models.semua_transaksi()
+    return render_template("transaksi_list.html", transaksi=daftar)
+
+
 if __name__ == "__main__":
     app.run(debug=True)

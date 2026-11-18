@@ -96,6 +96,42 @@ def hapus_kategori(kategori_id):
         db.execute("DELETE FROM kategori WHERE id = ?", (kategori_id,))
 
 
+# ============================================================
+# Modul Transaksi & Detail Transaksi (Jobsheet 10)
+# ============================================================
+
+def semua_transaksi():
+    """Mengambil seluruh data transaksi penjualan beserta nama kasir (JOIN pengguna),
+
+    total tagihan agregasi (SUM detail_transaksi), dan rincian menu yang dipesan.
+    """
+    with koneksi() as db:
+        return db.execute(
+            """
+            SELECT 
+                t.id,
+                t.nomor_transaksi,
+                t.tanggal_waktu,
+                t.tipe_pesanan,
+                t.nomor_meja,
+                t.metode_pembayaran,
+                t.uang_diterima,
+                p.nama_lengkap AS nama_kasir,
+                COALESCE(SUM(d.jumlah * d.harga_satuan), 0) AS total_belanja,
+                COALESCE(GROUP_CONCAT(m.nama || ' (' || d.jumlah || 'x)', ', '), '-') AS rincian_menu
+            FROM transaksi t
+            JOIN pengguna p ON t.pengguna_id = p.id
+            LEFT JOIN detail_transaksi d ON t.id = d.transaksi_id
+            LEFT JOIN menu m ON d.menu_id = m.id
+            GROUP BY 
+                t.id, t.nomor_transaksi, t.tanggal_waktu, t.tipe_pesanan,
+                t.nomor_meja, t.metode_pembayaran, t.uang_diterima, p.nama_lengkap
+            ORDER BY t.tanggal_waktu DESC, t.id DESC
+            """
+        ).fetchall()
+
+
+
 
 def tambah_menu(nama, kategori_id, harga, status="tersedia"):
     """Menambahkan menu hidangan baru ke dalam basis data SQLite."""
