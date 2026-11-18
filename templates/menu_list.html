@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block judul %}Daftar Menu — KasirWarung{% endblock %}
+
+{% block isi %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+  <div>
+    <h1 style="margin: 0; font-size: 24px;">Daftar Menu Warung Makan</h1>
+    <p style="margin: 4px 0 0 0; color: #6c757d; font-size: 14px;">Kelola hidangan, kategori, harga jual, dan status ketersediaan (KF-01 &amp; KF-02)</p>
+  </div>
+  <a href="/menu/tambah" class="btn btn-primary">+ Tambah Menu Baru</a>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width: 50px;" class="text-center">No</th>
+      <th>Nama Menu</th>
+      <th>Kategori</th>
+      <th class="text-right">Harga Jual</th>
+      <th class="text-center">Status</th>
+      <th class="text-center" style="width: 160px;">Aksi</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in menu %}
+    <tr>
+      <td class="text-center">{{ loop.index }}</td>
+      <td><strong>{{ m['nama'] }}</strong></td>
+      <td>{{ m['nama_kategori'] }}</td>
+      <td class="text-right">{{ m['harga'] | rupiah }}</td>
+      <td class="text-center">
+        {% if m['status'] == 'tersedia' %}
+          <span class="badge badge-tersedia">Tersedia</span>
+        {% else %}
+          <span class="badge badge-habis">Habis</span>
+        {% endif %}
+      </td>
+      <td class="text-center">
+        <a href="/menu/{{ m['id'] }}/ubah" class="btn btn-sm btn-outline">Ubah</a>
+        <form method="post" action="/menu/{{ m['id'] }}/hapus" style="display: inline;" onsubmit="return confirm('Hapus menu ini?');">
+          <button type="submit" class="btn btn-sm btn-outline" style="color: #dc3545; border-color: #f5c2c7;">Hapus</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="6" class="text-center" style="padding: 32px; color: #6c757d;">
+        Belum ada menu yang terdaftar di sistem.
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

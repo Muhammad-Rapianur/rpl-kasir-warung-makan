@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block judul %}KasirWarung{% endblock %}</title>
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --card-bg: #ffffff;
+      --text: #212529;
+      --border: #dee2e6;
+      --primary: #0d6efd;
+      --success-bg: #d1e7dd;
+      --success-text: #0f5132;
+      --error-bg: #f8d7da;
+      --error-text: #842029;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    header {
+      background-color: #212529;
+      color: #fff;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h2 { margin: 0; font-size: 20px; font-weight: 600; }
+    nav a {
+      color: #ced4da;
+      text-decoration: none;
+      margin-left: 18px;
+      font-weight: 500;
+    }
+    nav a:hover, nav a.active { color: #fff; text-decoration: underline; }
+    .container {
+      max-width: 1000px;
+      margin: 24px auto;
+      padding: 0 16px;
+    }
+    .pesan-flash {
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    .pesan-sukses {
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid #badbcc;
+    }
+    .pesan-galat {
+      background-color: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid #f5c2c7;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    th, td {
+      padding: 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background-color: #f1f3f5;
+      font-weight: 600;
+      color: #495057;
+    }
+    tr:hover { background-color: #f8f9fa; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge-tersedia {
+      background-color: #d1e7dd;
+      color: #0f5132;
+    }
+    .badge-habis {
+      background-color: #f8d7da;
+      color: #842029;
+    }
+    .btn {
+      display: inline-block;
+      padding: 8px 16px;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background-color: #212529;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background-color: #343a40;
+    }
+    .btn-sm {
+      padding: 4px 10px;
+      font-size: 13px;
+    }
+    .btn-outline {
+      background: transparent;
+      border-color: #ced4da;
+      color: #212529;
+    }
+    .btn-outline:hover {
+      background: #e9ecef;
+    }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #343a40;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 15px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: #fff;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 3px rgba(13,110,253,0.15);
+    }
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 24px;
+      max-width: 600px;
+      margin: 16px auto;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>KasirWarung</h2>
+    <nav>
+      <a href="{{ url_for('daftar_menu') }}">Kelola Menu</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    {% for pesan in get_flashed_messages() %}
+      <div class="pesan-flash pesan-sukses">{{ pesan }}</div>
+    {% endfor %}
+
+    {% block isi %}{% endblock %}
+  </main>
+</body>
+</html>
