@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from datetime import date
 from flask import Flask, abort, flash, redirect, render_template, request, url_for
 import models
 import services
@@ -245,6 +246,56 @@ def daftar_transaksi():
     """Halaman riwayat transaksi penjualan (Read dengan JOIN & Agregasi)."""
     daftar = models.semua_transaksi()
     return render_template("transaksi_list.html", transaksi=daftar)
+
+
+@app.route("/transaksi/tambah", methods=["GET", "POST"])
+def tambah_transaksi():
+    """Form catat transaksi penjualan baru dengan relasi detail (Langkah 4 & 5)."""
+    daftar_menu = models.semua_menu()
+    isian_default = {"tanggal": date.today().isoformat(), "jumlah": 1}
+
+    if request.method == "POST":
+        data, galat = services.validasi_transaksi(request.form)
+
+        # Validasi menu induk (cek apakah menu_id benar-benar ada)
+        menu_pilihan = None
+        if data["menu_id"]:
+            menu_pilihan = models.ambil_menu(data["menu_id"])
+            if menu_pilihan is None:
+                galat.append("Menu hidangan tidak ditemukan di database.")
+
+        if not galat:
+            try:
+                nomor_trx = models.tambah_transaksi_dengan_detail(
+                    menu_id=data["menu_id"],
+                    jumlah=data["jumlah"],
+                    tanggal_waktu=data["tanggal_waktu"],
+                    tipe_pesanan=data["tipe_pesanan"],
+                    nomor_meja=data["nomor_meja"],
+                    metode_pembayaran=data["metode_pembayaran"],
+                    uang_diterima=data["uang_diterima"],
+                    pengguna_id=2,  # Kasir Utama
+                )
+            except sqlite3.IntegrityError as err:
+                galat.append(f"Gagal mencatat transaksi: {err}")
+            else:
+                flash(f"Transaksi {nomor_trx} berhasil dicatat.")
+                return redirect(url_for("daftar_transaksi"))
+
+        return render_template(
+            "transaksi_form.html",
+            menu=daftar_menu,
+            isian=request.form,
+            galat=galat,
+        )
+
+    return render_template(
+        "transaksi_form.html",
+        menu=daftar_menu,
+        isian=isian_default,
+        galat=[],
+    )
+
 
 
 if __name__ == "__main__":
