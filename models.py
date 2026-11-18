@@ -60,3 +60,26 @@ def tambah_menu(nama, kategori_id, harga, status="tersedia"):
         )
 
 
+def ambil_menu(menu_id):
+    """Mengambil satu data menu berdasarkan id. Mengembalikan None jika tidak ditemukan."""
+    with koneksi() as db:
+        return db.execute(
+            "SELECT id, nama, kategori_id, harga, status FROM menu WHERE id = ?",
+            (menu_id,),
+        ).fetchone()
+
+
+def ubah_menu(menu_id, nama, kategori_id, harga, status="tersedia"):
+    """Memperbarui data menu berdasarkan id."""
+    with koneksi() as db:
+        db.execute(
+            """
+            UPDATE menu
+            SET nama = ?, kategori_id = ?, harga = ?, status = ?
+            WHERE id = ?
+            """,
+            (nama, kategori_id, harga, status, menu_id),
+        )
+
+
+

@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 import models
 import services
 
@@ -68,6 +68,56 @@ def tambah_menu():
         galat=[],
         apakah_ubah=False,
     )
+
+
+@app.route("/menu/<int:menu_id>/ubah", methods=["GET", "POST"])
+def ubah_menu(menu_id):
+    """Form ubah menu hidangan (Update - Langkah 8)."""
+    menu = models.ambil_menu(menu_id)
+    if menu is None:
+        abort(404)
+
+    daftar_kategori = models.semua_kategori()
+
+    if request.method == "POST":
+        data, galat = services.validasi_menu(request.form)
+        status = request.form.get("status", "tersedia")
+        if status not in ("tersedia", "habis"):
+            status = "tersedia"
+
+        if not galat:
+            try:
+                models.ubah_menu(
+                    menu_id,
+                    data["nama"],
+                    data["kategori_id"],
+                    data["harga"],
+                    status,
+                )
+            except sqlite3.IntegrityError:
+                galat.append(f"Menu dengan nama '{data['nama']}' sudah terdaftar.")
+            else:
+                flash(f"Menu '{data['nama']}' berhasil diperbarui.")
+                return redirect(url_for("daftar_menu"))
+
+        return render_template(
+            "menu_form.html",
+            judul="Ubah Menu Hidangan",
+            menu=request.form,
+            kategori=daftar_kategori,
+            galat=galat,
+            apakah_ubah=True,
+        )
+
+    return render_template(
+        "menu_form.html",
+        judul="Ubah Menu Hidangan",
+        menu=dict(menu),
+        kategori=daftar_kategori,
+        galat=[],
+        apakah_ubah=True,
+    )
+
 
 
 
