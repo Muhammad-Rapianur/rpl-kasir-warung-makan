@@ -11,6 +11,15 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-only-kasir-warung-2026")
 models.init_db()
 
 
+@app.template_filter("rupiah")
+def format_rupiah(nilai):
+    """Filter Jinja2 untuk memformat angka ke format mata uang Rupiah (contoh: 15000 -> Rp 15.000)."""
+    try:
+        return f"Rp {int(nilai):,}".replace(",", ".")
+    except (ValueError, TypeError):
+        return f"Rp {nilai}"
+
+
 @app.route("/")
 def beranda():
     """Rute beranda utama yang mengalihkan langsung ke modul menu."""
