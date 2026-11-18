@@ -96,6 +96,107 @@ def hapus_kategori(kategori_id):
         db.execute("DELETE FROM kategori WHERE id = ?", (kategori_id,))
 
 
+# ============================================================
+# Modul Transaksi & Detail Transaksi (Jobsheet 10)
+# ============================================================
+
+def semua_transaksi():
+    """Mengambil seluruh data transaksi penjualan beserta nama kasir (JOIN pengguna),
+
+    total tagihan agregasi (SUM detail_transaksi), dan rincian menu yang dipesan.
+    """
+    with koneksi() as db:
+        return db.execute(
+            """
+            SELECT 
+                t.id,
+                t.nomor_transaksi,
+                t.tanggal_waktu,
+                t.tipe_pesanan,
+                t.nomor_meja,
+                t.metode_pembayaran,
+                t.uang_diterima,
+                p.nama_lengkap AS nama_kasir,
+                COALESCE(SUM(d.jumlah * d.harga_satuan), 0) AS total_belanja,
+                COALESCE(GROUP_CONCAT(m.nama || ' (' || d.jumlah || 'x)', ', '), '-') AS rincian_menu
+            FROM transaksi t
+            JOIN pengguna p ON t.pengguna_id = p.id
+            LEFT JOIN detail_transaksi d ON t.id = d.transaksi_id
+            LEFT JOIN menu m ON d.menu_id = m.id
+            GROUP BY 
+                t.id, t.nomor_transaksi, t.tanggal_waktu, t.tipe_pesanan,
+                t.nomor_meja, t.metode_pembayaran, t.uang_diterima, p.nama_lengkap
+            ORDER BY t.tanggal_waktu DESC, t.id DESC
+            """
+        ).fetchall()
+
+
+def tambah_transaksi_dengan_detail(
+    menu_id,
+    jumlah,
+    tanggal_waktu,
+    tipe_pesanan,
+    nomor_meja,
+    metode_pembayaran,
+    uang_diterima,
+    pengguna_id=2,
+):
+    """Menyimpan data kepala transaksi DAN rincian pesanan dalam SATU transaksi atomik SQLite.
+
+    (Jobsheet 10 - Langkah 5: Transaksi multi-tabel dalam satu with koneksi()).
+    Jika query kedua gagal, perubahan pertama otomatis dibatalkan (rollback).
+    """
+    with koneksi() as db:
+        # 1. Validasi keberadaan menu induk di database
+        menu = db.execute(
+            "SELECT id, nama, harga, status FROM menu WHERE id = ?", (menu_id,)
+        ).fetchone()
+        if menu is None:
+            raise sqlite3.IntegrityError(f"Menu dengan ID {menu_id} tidak ditemukan.")
+
+        # 2. Generate nomor transaksi unik berformat TRX-YYYYMMDD-XXX
+        tgl_str = (
+            tanggal_waktu[:10].replace("-", "")
+            if tanggal_waktu and len(tanggal_waktu) >= 10
+            else "20261119"
+        )
+        total_hari_ini = db.execute(
+            "SELECT COUNT(*) FROM transaksi WHERE nomor_transaksi LIKE ?",
+            (f"TRX-{tgl_str}-%",),
+        ).fetchone()[0]
+        nomor_transaksi = f"TRX-{tgl_str}-{total_hari_ini + 1:03d}"
+
+        # 3. Masukkan transaksi header
+        cursor = db.execute(
+            """
+            INSERT INTO transaksi (nomor_transaksi, tanggal_waktu, tipe_pesanan, nomor_meja, metode_pembayaran, uang_diterima, pengguna_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                nomor_transaksi,
+                tanggal_waktu,
+                tipe_pesanan,
+                nomor_meja,
+                metode_pembayaran,
+                uang_diterima,
+                pengguna_id,
+            ),
+        )
+        trx_id = cursor.lastrowid
+
+        # 4. Masukkan baris detail_transaksi (menyimpan harga satuan saat itu)
+        db.execute(
+            """
+            INSERT INTO detail_transaksi (transaksi_id, menu_id, jumlah, harga_satuan)
+            VALUES (?, ?, ?, ?)
+            """,
+            (trx_id, menu_id, jumlah, menu["harga"]),
+        )
+        return nomor_transaksi
+
+
+
+
 
 def tambah_menu(nama, kategori_id, harga, status="tersedia"):
     """Menambahkan menu hidangan baru ke dalam basis data SQLite."""

@@ -1,9 +1,9 @@
-"""services.py.
+"""Lapisan Logika Bisnis (Business Logic Layer) - KasirWarung.
 
-Lapisan Logika Bisnis (Business Logic Layer) - KasirWarung.
 Berisi validasi input, aturan bisnis kalkulasi, dan aturan data.
 Dilarang memproses rendering HTML atau mengakses SQL secara langsung.
 """
+from datetime import date, datetime
 
 
 def _bilangan_positif(teks):
@@ -73,4 +73,83 @@ def validasi_kategori(form):
         galat.append("Nama kategori minimal 3 karakter.")
 
     return {"nama": nama}, galat
+
+
+def validasi_transaksi(form):
+    """Validasi form pencatatan transaksi kasir baru (Langkah 4).
+
+    Menguji menu_id, kuantitas, format tanggal, dan metode bayar.
+    """
+    galat = []
+
+    # 1. Validasi Menu ID (Induk)
+    menu_id_raw = form.get("menu_id")
+    menu_id = None
+    if not menu_id_raw or str(menu_id_raw).strip() == "":
+        galat.append("Pilih menu hidangan.")
+    else:
+        try:
+            menu_id = int(str(menu_id_raw).strip())
+        except (ValueError, TypeError):
+            galat.append("Pilihan menu tidak valid.")
+
+    # 2. Validasi Jumlah (harus bilangan bulat > 0)
+    jumlah_raw = form.get("jumlah")
+    jumlah = None
+    if not jumlah_raw or str(jumlah_raw).strip() == "":
+        galat.append("Jumlah porsi harus berupa angka lebih dari 0.")
+    else:
+        teks_jml = str(jumlah_raw).strip()
+        if not teks_jml.isdigit() or int(teks_jml) <= 0:
+            galat.append("Jumlah porsi harus berupa angka lebih dari 0.")
+        else:
+            jumlah = int(teks_jml)
+
+    # 3. Validasi Tanggal (Wajib format TTTT-BB-HH / ISO)
+    tanggal_raw = (form.get("tanggal") or "").strip()
+    if not tanggal_raw:
+        galat.append("Tanggal transaksi wajib diisi.")
+        tanggal_iso = date.today().isoformat()
+    else:
+        try:
+            # Uji format TTTT-BB-HH (ISO)
+            parsed_date = date.fromisoformat(tanggal_raw)
+            # Simpan dengan jam saat ini
+            waktu_sekarang = datetime.now().strftime("%H:%M:%S")
+            tanggal_iso = f"{parsed_date.isoformat()} {waktu_sekarang}"
+        except ValueError:
+            galat.append("Tanggal harus berformat TTTT-BB-HH (contoh: 2026-11-19).")
+            tanggal_iso = None
+
+    # 4. Validasi Tipe Pesanan
+    tipe_pesanan = form.get("tipe_pesanan", "dine_in")
+    if tipe_pesanan not in ("dine_in", "take_away"):
+        tipe_pesanan = "dine_in"
+
+    nomor_meja = (form.get("nomor_meja") or "").strip() or None
+    if tipe_pesanan == "dine_in" and not nomor_meja:
+        nomor_meja = "01"  # Default nomor meja jika tidak diisi
+
+    # 5. Validasi Metode Bayar & Uang Diterima
+    metode_pembayaran = form.get("metode_pembayaran", "tunai")
+    if metode_pembayaran not in ("tunai", "qris"):
+        metode_pembayaran = "tunai"
+
+    uang_raw = form.get("uang_diterima", "0")
+    try:
+        uang_diterima = int(str(uang_raw).strip()) if str(uang_raw).strip().isdigit() else 0
+    except (ValueError, TypeError):
+        uang_diterima = 0
+
+    data = {
+        "menu_id": menu_id,
+        "jumlah": jumlah,
+        "tanggal_waktu": tanggal_iso,
+        "tipe_pesanan": tipe_pesanan,
+        "nomor_meja": nomor_meja,
+        "metode_pembayaran": metode_pembayaran,
+        "uang_diterima": uang_diterima,
+    }
+    return data, galat
+
 

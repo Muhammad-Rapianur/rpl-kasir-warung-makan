@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block judul %}Catat Transaksi Baru — KasirWarung{% endblock %}
+
+{% block isi %}
+<div class="form-card">
+  <h1 style="margin-top: 0; font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">Catat Transaksi Penjualan Baru</h1>
+
+  {% if galat %}
+    <div class="pesan-flash pesan-galat" style="margin-bottom: 16px;">
+      <ul style="margin: 0; padding-left: 20px;">
+        {% for g in galat %}
+          <li>{{ g }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post">
+    <div class="form-group">
+      <label for="menu_id">Pilih Menu Hidangan (Tabel Induk) <span style="color: red;">*</span></label>
+      <select id="menu_id" name="menu_id" class="form-control" required>
+        <option value="">-- Pilih Hidangan --</option>
+        {% for m in menu %}
+          <option value="{{ m['id'] }}" {% if isian.get('menu_id')|string == m['id']|string %}selected{% endif %}>
+            {{ m['nama'] }} — {{ m['harga'] | rupiah }} [{{ m['status'] | capitalize }}]
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div style="display: flex; gap: 16px;">
+      <div class="form-group" style="flex: 1;">
+        <label for="jumlah">Jumlah Porsi <span style="color: red;">*</span></label>
+        <input type="number" id="jumlah" name="jumlah" class="form-control" min="1" value="{{ isian.get('jumlah', 1) }}" required>
+      </div>
+
+      <div class="form-group" style="flex: 1;">
+        <label for="tanggal">Tanggal Transaksi <span style="color: red;">*</span></label>
+        <input type="date" id="tanggal" name="tanggal" class="form-control" value="{{ isian.get('tanggal', '') }}" required>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 16px;">
+      <div class="form-group" style="flex: 1;">
+        <label for="tipe_pesanan">Tipe Layanan</label>
+        <select id="tipe_pesanan" name="tipe_pesanan" class="form-control">
+          <option value="dine_in" {% if isian.get('tipe_pesanan') == 'dine_in' %}selected{% endif %}>Makan di Tempat (Dine-in)</option>
+          <option value="take_away" {% if isian.get('tipe_pesanan') == 'take_away' %}selected{% endif %}>Bungkus (Take-away)</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="flex: 1;">
+        <label for="nomor_meja">Nomor Meja</label>
+        <input type="text" id="nomor_meja" name="nomor_meja" class="form-control" placeholder="Contoh: 05" value="{{ isian.get('nomor_meja', '') }}">
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 16px;">
+      <div class="form-group" style="flex: 1;">
+        <label for="metode_pembayaran">Metode Pembayaran</label>
+        <select id="metode_pembayaran" name="metode_pembayaran" class="form-control">
+          <option value="tunai" {% if isian.get('metode_pembayaran') == 'tunai' %}selected{% endif %}>Tunai (Cash)</option>
+          <option value="qris" {% if isian.get('metode_pembayaran') == 'qris' %}selected{% endif %}>QRIS Statis</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="flex: 1;">
+        <label for="uang_diterima">Uang Diterima (Rp)</label>
+        <input type="number" id="uang_diterima" name="uang_diterima" class="form-control" placeholder="Contoh: 50000" min="0" value="{{ isian.get('uang_diterima', '') }}">
+      </div>
+    </div>
+
+    <div style="margin-top: 24px; display: flex; gap: 12px;">
+      <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Simpan Transaksi</button>
+      <a href="/transaksi" class="btn btn-outline" style="padding: 10px 20px;">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
