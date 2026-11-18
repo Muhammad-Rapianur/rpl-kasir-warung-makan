@@ -27,3 +27,15 @@
 > - Kolom **Keputusan** diisi: `Terima`, `Ubah`, atau `Tolak`.
 > - Kolom **Alasan** wajib memuat dasar teknis (kesesuaian kriteria penerimaan, arsitektur, keamanan, dsb.).
 > - Minimal 8 siklus pada Jobsheet 9 (termasuk minimal 1 sesi berlabel `[Debug]`).
+
+---
+
+### Analisis Proporsi Keputusan Sementara (Langkah 15):
+- **Total Entri Siklus:** 11 siklus (Siklus 1 s.d. 11)
+- **Diterima (Terima):** 10 entri (**90,9%**)
+  - *Karakteristik:* Saran AI diterima karena langsung mematuhi kriteria penerimaan, menggunakan query berparameter, dan mematuhi arsitektur 3-tier.
+- **Diubah (Ubah):** 1 entri (**9,1%**)
+  - *Karakteristik:* Kode disesuaikan secara mandiri pada sesi debugging (format mata uang dialihkan ke custom filter Jinja2 dan penambahan kolom wajib `tanggal_waktu` pada kueri pengujian).
+- **Ditolak (Tolak):** 0 entri (**0%**)
+  - *Karakteristik:* Prompt yang diberikan sudah sangat spesifik (*small-chunk incremental prompting*) sehingga AI tidak menghasilkan kode melenceng atau menambahkan dependensi di luar lingkup.
+
