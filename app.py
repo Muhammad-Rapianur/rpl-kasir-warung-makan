@@ -31,9 +31,23 @@ def beranda():
 
 @app.route("/menu")
 def daftar_menu():
-    """Halaman daftar menu makanan dan minuman (Read - Langkah 5)."""
-    daftar = models.semua_menu()
-    return render_template("menu_list.html", menu=daftar)
+    """Halaman daftar menu makanan dan minuman dengan pencarian dan filter (Langkah 9 & 10)."""
+    kata = request.args.get("q", "").strip()
+    kategori_raw = request.args.get("kategori", "").strip()
+    status = request.args.get("status", "").strip() or None
+
+    kategori_id = int(kategori_raw) if kategori_raw.isdigit() else None
+    daftar = models.cari_menu(kata=kata, kategori_id=kategori_id, status=status)
+    daftar_kategori = models.semua_kategori()
+
+    return render_template(
+        "menu_list.html",
+        menu=daftar,
+        kategori=daftar_kategori,
+        kata=kata,
+        kategori_terpilih=kategori_id,
+        status_terpilih=status,
+    )
 
 
 @app.route("/menu/tambah", methods=["GET", "POST"])
