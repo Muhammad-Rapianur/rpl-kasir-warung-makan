@@ -35,6 +35,9 @@
 | **25** | **[JS 11 / Siklus 7] Perluasan Suite Uji Regresi tests/uji_cepat.py** | Konteks: `tests/uji_cepat.py`. Perluas suite uji dengan isolasi basis data sementara (`tempfile`) untuk mencakup seluruh fitur autentikasi (hash, anti open-redirect, pesan seragam) dan otorisasi (403 kasir vs pemilik). | Dihasilkan 6 modul uji terpadu. Menemukan bug sesi gantung pada test client dan memperbaikinya via `c.post('/logout')`. Seluruh rangkaian uji regresi dinyatakan **LULUS 100%**. | **Terima** | Memberikan jaring pengaman otomatis (*safety net*) untuk refactoring dan penambahan modul masa depan; menjamin stabilitas aplikasi. |
 | **26** | **[JS 12 / Siklus 1] Tinjauan Kasus Rentan & Analisis OWASP (Langkah 3-6)** | Konteks: `kasus_rentan.py` (Lampiran B.1), standar OWASP Top 10:2025. Analisis 10 kelemahan kode AI dan buktikan 3 eksploitasi: (1) SQLi bypass login via f-string, (2) Hapus data via metode GET tanpa login, (3) Open redirect phishing. | Dihasilkan tabel analisis 10 kerentanan lengkap dan 3 bukti empiris di lingkungan lokal. Menilai perbaikan AI: AI sering hanya memperbaiki gejala tanpa menutup akar celah kontrol akses. | **Terima** | Meningkatkan kepekaan auditor keamanan terhadap output AI; memahami 10 risiko kritis aplikasi web OWASP 2025. |
 | **27** | **[JS 12 / Siklus 2] Tinjauan Keamanan Mandiri Proyek KasirWarung (Langkah 7)** | Konteks: `docs/laporan-temuan.md`, `app.py`, `templates/`. Terapkan daftar periksa Lampiran C pada basis kode KasirWarung. Temukan 5 celah keamanan: Ketiadaan CSRF (T-01), Tanpa rate limiting login (T-02), Ketiadaan audit log (T-03), Tanpa header keamanan (T-04), dan Fail-secure secret key (T-05). | Dihasilkan dokumen `docs/laporan-temuan.md` berisi 5 temuan berbobot dan rencana aksi mitigasi pada Sesi 2. | **Terima** | Menyiapkan rencana mitigasi keamanan yang terstruktur dan terukur sebelum memasuki tahap demo checkpoint. |
+| **28** | **[JS 12 / Siklus 3] Perlindungan Cross-Site Request Forgery Mandiri (Langkah 11)** | Konteks: `app.py`, seluruh formulir `templates/*.html`, `templates/400.html`. Bangun mekanisme token CSRF berbasis sesi `secrets.token_hex(16)` tanpa paket eksternal (murni stdlib). Verifikasi setiap request POST pada `before_request` via `secrets.compare_digest()`. | Dihasilkan perlindungan CSRF terpusat. Uji coba pengiriman POST tanpa token atau token salah langsung ditolak dengan status HTTP 400 Bad Request. **LULUS.** | **Terima** | Menutup celah A01 OWASP; melindungi pengguna dari serangan manipulasi transaksi dan menu lintas situs (*forged request*). |
+| **29** | **[JS 12 / Siklus 4] Rate Limiting Percobaan Login & Audit Logging (Langkah 12)** | Konteks: `percobaan.py`, `app.py`. Buat modul rate limiter sliding window: maksimal 5 kali gagal per 5 menit per IP/username, percobaan ke-6 diblokir HTTP 429 Too Many Requests. Pasang modul `logging` standar untuk mencatat kegagalan, pemblokiran, dan akses 403 tanpa kata sandi. | Dihasilkan pembatasan brute-force dan audit trail. Diuji 5 kegagalan beruntun berhasil memicu respons HTTP 429 dan log insiden tercetak dengan format `%r`. **LULUS.** | **Terima** | Menutup celah A07 & A09 OWASP; melindungi kredensial akun kasir dari serangan kamus otomatis (*dictionary attack*). |
+| **30** | **[JS 12 / Siklus 5] Konfigurasi Produksi, Header Keamanan, & Kunci Dependensi (Langkah 13)** | Konteks: `app.py`, `requirements.txt`. Terapkan *fail-secure*: aplikasi menolak start (`RuntimeError`) bila `APP_ENV=production` tanpa `SECRET_KEY`. Tambahkan header `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: same-origin`, dan kunci versi pustaka di `requirements.txt`. | Dihasilkan konfigurasi *production-ready*. Seluruh 9 modul pengujian pada `tests/uji_cepat.py` dieksekusi dan dinyatakan **SEMUA UJI REGRESI LULUS 100%**. | **Terima** | Menutup celah A02 & A03 OWASP; menjamin aplikasi aman dari *clickjacking* dan inkonsistensi paket. Target 30 entri RTM-2 terpenuhi. |
 
 ---
 
@@ -46,13 +49,13 @@
 
 ---
 
-### Analisis Proporsi Keputusan Akhir Jobsheet 11 (Langkah 15):
-- **Total Entri Siklus:** 25 siklus (Jobsheet 9: 11 entri; Jobsheet 10: 7 entri; Jobsheet 11: 7 entri baru)
+### Analisis Proporsi Keputusan Akhir Jobsheet 12 (Akhir Sprint 2 — Target 30 Entri Terpenuhi):
+- **Total Entri Siklus:** **30 siklus** (Jobsheet 9: 11 entri; Jobsheet 10: 7 entri; Jobsheet 11: 7 entri; Jobsheet 12: 5 entri)
 - **Entri Debugging [Debug]:** 2 entri (Siklus 8 & Siklus 17)
-- **Diterima (Terima):** 23 entri (**92,0%**)
-  - *Karakteristik:* Saran kode AI mematuhi kriteria penerimaan, menggunakan hash aman `scrypt`, parameter kueri, dan arsitektur 3-tier.
-- **Diubah (Ubah):** 2 entri (**8,0%**)
-  - *Karakteristik:* Kode disesuaikan secara mandiri pada sesi debugging (format rupiah kustom, penanganan docstring literal, dan siklus sesi logout pengujian).
+- **Diterima (Terima):** 28 entri (**93,3%**)
+  - *Karakteristik:* Kode AI mematuhi kriteria keamanan OWASP 2025, standar arsitektur 3-tier, serta kueri parameterized SQLite.
+- **Diubah (Ubah):** 2 entri (**6,7%**)
+  - *Karakteristik:* Kode disesuaikan mandiri saat menangani custom formatting Rupiah dan perbaikan docstring literal.
 - **Ditolak (Tolak):** 0 entri (**0%**)
-  - *Karakteristik:* Prompt spesifik dan kontekstual mencegah AI menghasilkan solusi yang keluar dari batasan arsitektur.
+  - *Karakteristik:* Prompting modular dan berkonteks ketat mencegah halusinasi dependensi atau kode melenceng.
 

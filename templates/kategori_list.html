@@ -31,6 +31,7 @@
       <td class="text-center">
         <a href="{{ url_for('ubah_kategori', kategori_id=k['id']) }}" class="btn btn-sm btn-outline">Ubah</a>
         <form method="post" action="{{ url_for('hapus_kategori', kategori_id=k['id']) }}" style="display: inline;" onsubmit="return confirm('Hapus kategori ini?');">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <button type="submit" class="btn btn-sm btn-outline" style="color: #dc3545; border-color: #f5c2c7;">Hapus</button>
         </form>
       </td>

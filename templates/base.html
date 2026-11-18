@@ -25,6 +25,7 @@
           <span class="user-name">{{ g.pengguna['username'] }}</span>
           <span class="badge-peran">{{ g.pengguna['peran'] }}</span>
           <form class="logout-form" method="post" action="{{ url_for('logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn-logout">Keluar</button>
           </form>
         </div>
