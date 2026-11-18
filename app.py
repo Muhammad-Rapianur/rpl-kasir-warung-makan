@@ -119,6 +119,29 @@ def ubah_menu(menu_id):
     )
 
 
+@app.route("/menu/<int:menu_id>/hapus", methods=["POST"])
+def hapus_menu(menu_id):
+    """Hapus data menu hidangan (Delete - Langkah 9).
+
+    Hanya menerima metode HTTP POST demi keamanan web.
+    """
+    menu = models.ambil_menu(menu_id)
+    if menu is None:
+        abort(404)
+
+    try:
+        models.hapus_menu(menu_id)
+    except sqlite3.IntegrityError:
+        flash(
+            f"Menu '{menu['nama']}' tidak dapat dihapus karena sudah memiliki riwayat transaksi penjualan."
+        )
+    else:
+        flash(f"Menu '{menu['nama']}' berhasil dihapus.")
+
+    return redirect(url_for("daftar_menu"))
+
+
+
 
 
 if __name__ == "__main__":

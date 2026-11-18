@@ -82,4 +82,14 @@ def ubah_menu(menu_id, nama, kategori_id, harga, status="tersedia"):
         )
 
 
+def hapus_menu(menu_id):
+    """Menghapus menu berdasarkan id.
+
+    Memicu sqlite3.IntegrityError jika menu dirujuk oleh tabel detail_transaksi.
+    """
+    with koneksi() as db:
+        db.execute("DELETE FROM menu WHERE id = ?", (menu_id,))
+
+
+
 
