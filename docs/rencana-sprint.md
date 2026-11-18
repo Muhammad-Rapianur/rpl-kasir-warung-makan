@@ -46,16 +46,20 @@ Dokumen ini memetakan rencana pelaksanaan 4 siklus *Sprint* untuk menyelesaikan 
 
 ---
 
-### 🔹 Sprint 2 (Minggu 11–12): Autentikasi Multi-Peran & Layar Transaksi Kasir
-> ⭐ **TITIK PERIKSA CHECKPOINT DOSEN (MINGGU 12)**
-- **Fokus Utama:** Hak akses pengguna dan perakitan komponen utama POS kasir.
-- **Butir Backlog yang Dikerjakan:**
-  - `UC-01 / Pengguna`: Modul Login & Session autentikasi 2 peran (*Kasir* vs *Pemilik Warung*).
-  - `KF-01 & KF-03`: Integrasi katalog tombol menu layar sentuh dan pemilihan tipe pesanan (*Dine-in / Take-away*).
-  - `KF-04`: Logika keranjang belanja kasir *real-time* via JavaScript/Fetch API lokal.
-  - `KF-05`: Pencegahan pemesanan menu yang berstatus *Habis*.
-  - **Tinjauan Keamanan & Code Review:** Audit celah keamanan sesi login, sanitasi input, dan rotasi acak `SECRET_KEY`.
-- **Target Entri Jurnal:** Minimal 20 entri.
+### 🔹 Sprint 2 (Minggu 11–12): Autentikasi Multi-Peran, Antarmuka, dan Hardening Keamanan
+> ⭐ **TITIK PERIKSA CHECKPOINT DOSEN (MINGGU 12) — SELESAI 100%**
+- **Status:** ✅ **SELESAI 100% (Jobsheet 11 & Jobsheet 12)**
+- **Fokus Utama:** Autentikasi sesi, RBAC 2 peran (Pemilik vs Kasir), validasi masukan dua lapis, penyeragaman antarmuka wireframe, code review OWASP Top 10, dan mitigasi keamanan (CSRF, Rate Limiting, Audit Logging).
+- **Butir Backlog yang Diselesaikan:**
+  - `UC-01 / Pengguna`: Modul Login & Logout aman dengan password hash `scrypt` dan proteksi open redirect (Selesai pada JS 11).
+  - `H3 / RBAC Server`: Decorator `@peran_diperlukan` di server; kasir diblokir HTTP 403 Forbidden pada rute manajerial menu & kategori (Selesai pada JS 11).
+  - `H4 / Antarmuka Wireframe`: Satu berkas CSS terpusat `static/style.css`, layout `templates/base.html` adaptif, halaman ramah `403.html` dan `400.html` (Selesai pada JS 11 & 12).
+  - `H5 / Validasi Dua Lapis`: Atribut HTML5 di peramban + validasi mutlak server di `services.py` (Selesai pada JS 11).
+  - `T-01 / Proteksi CSRF`: Token sinkronisasi acak per sesi `secrets.token_hex(16)` di seluruh formulir POST (Selesai pada JS 12).
+  - `T-02 & T-03 / Rate Limiter & Audit Logging`: Pembatasan 5 kali gagal per 5 menit (`percobaan.py` $\rightarrow$ HTTP 429) dan logging insiden keamanan tanpa kata sandi (Selesai pada JS 12).
+  - `T-04 & T-05 / Hardening Produksi`: Header keamanan `nosniff`, `DENY`, `same-origin`, fail-secure `SECRET_KEY`, dan dependensi terkunci di `requirements.txt` (Selesai pada JS 12).
+- **Capaian Entri Jurnal:** **30 entri lengkap** tercatat di `jurnal-vibe-coding.md` (Target semester RTM-2 terpenuhi).
+- **Status Uji Regresi:** Suite otomatis di `tests/uji_cepat.py` mencakup seluruh alur dengan hasil **LULUS 100%**.
 
 ---
 
