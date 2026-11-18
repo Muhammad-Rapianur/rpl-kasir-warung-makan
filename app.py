@@ -19,8 +19,9 @@ def beranda():
 
 @app.route("/menu")
 def daftar_menu():
-    """Rute daftar menu (kerangka awal Langkah 3)."""
-    return render_template("menu_list.html")
+    """Halaman daftar menu makanan dan minuman (Read - Langkah 5)."""
+    daftar = models.semua_menu()
+    return render_template("menu_list.html", menu=daftar)
 
 
 if __name__ == "__main__":

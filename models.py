@@ -30,3 +30,23 @@ def init_db():
             raise FileNotFoundError(f"Berkas skema tidak ditemukan di {SCHEMA_PATH}")
         with koneksi() as db:
             db.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+
+
+def semua_menu():
+    """Mengambil seluruh daftar menu beserta nama kategorinya, diurutkan berdasarkan nama."""
+    with koneksi() as db:
+        return db.execute(
+            """
+            SELECT m.id, m.nama, m.harga, m.status, m.kategori_id, k.nama AS nama_kategori
+            FROM menu m
+            JOIN kategori k ON m.kategori_id = k.id
+            ORDER BY m.nama ASC
+            """
+        ).fetchall()
+
+
+def semua_kategori():
+    """Mengambil seluruh kategori untuk pilihan dropdown form."""
+    with koneksi() as db:
+        return db.execute("SELECT id, nama FROM kategori ORDER BY nama ASC").fetchall()
+
