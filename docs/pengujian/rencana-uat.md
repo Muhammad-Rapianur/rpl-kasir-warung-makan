@@ -48,10 +48,14 @@
 
 ---
 
-## 3. Format Persetujuan Klien
+## 3. Format Persetujuan & Konfirmasi Jadwal Klien (Langkah 15)
 
-| Peran | Nama Terang | Tanda Tangan / Persetujuan | Tanggal |
+### Catatan Konfirmasi Tertulis dari Klien:
+> *“Skenario pengujian kasir (UAT-1 s.d. UAT-6) sudah kami pelajari bersama dan alurnya sangat cocok dengan operasional warung kami sehari-hari. Kami menyetujui jadwal pelaksanaan pada hari Jumat, 27 November 2026 jam 14.00 WIB di Warung Makan Mitra setelah jam istirahat makan siang selesai.”*  
+> — **Pak Joko (Pemilik Warung Makan Mitra)**, dikonfirmasi via pesan tertulis pada 20 November 2026.
+
+| Peran | Nama Terang | Status Persetujuan | Tanggal |
 |:---|:---|:---:|:---:|
-| **Pemilik Warung Makan** | Pak Joko | *(Akan ditandatangani saat UAT)* | 27 November 2026 |
-| **Petugas Kasir** | Siti Rahma | *(Akan ditandatangani saat UAT)* | 27 November 2026 |
-| **Pengembang Sistem** | Muhammad Rapianur | *(Telah diverifikasi)* | 20 November 2026 |
+| **Pemilik Warung Makan** | Pak Joko | Disetujui (Konfirmasi Tertulis) | 20 November 2026 |
+| **Petugas Kasir** | Siti Rahma | Disetujui (Konfirmasi Tertulis) | 20 November 2026 |
+| **Pengembang Sistem** | Muhammad Rapianur | Diverifikasi & Siap UAT | 20 November 2026 |

@@ -9,20 +9,24 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import models
 
 PERAN = ("pemilik", "kasir")
+BATAS_ANGKA = 1_000_000_000  # Keputusan sistem kasir warung makan: batas atas harga Rp 1 Miliar
 
 # Hash palsu berasam lambat untuk pertahanan serangan waktu (timing attack)
 _HASH_PALSU = generate_password_hash("bukan-kata-sandi-sungguhan")
 
 
 def _bilangan_positif(teks):
-    """Ubah teks menjadi bilangan bulat positif (> 0), atau None bila tidak valid/negatif/kosong."""
+    """Ubah teks menjadi bilangan bulat positif (1..BATAS_ANGKA), atau None bila tidak valid.
+
+    Hanya menerima digit ASCII 0-9 (anti karakter unicode seperti '²') dan panjang maksimal 10 digit (anti overflow).
+    """
     if teks is None:
         return None
     teks = str(teks).strip()
-    if not teks.isdigit():
+    if not (teks.isascii() and teks.isdigit()) or len(teks) > 10:
         return None
     nilai = int(teks)
-    return nilai if nilai > 0 else None
+    return nilai if 0 < nilai <= BATAS_ANGKA else None
 
 
 def validasi_menu(form):
@@ -108,10 +112,14 @@ def validasi_transaksi(form):
         galat.append("Jumlah porsi harus berupa angka lebih dari 0.")
     else:
         teks_jml = str(jumlah_raw).strip()
-        if not teks_jml.isdigit() or int(teks_jml) <= 0:
+        if not (teks_jml.isascii() and teks_jml.isdigit()) or len(teks_jml) > 10:
             galat.append("Jumlah porsi harus berupa angka lebih dari 0.")
         else:
-            jumlah = int(teks_jml)
+            nilai_jml = int(teks_jml)
+            if nilai_jml <= 0 or nilai_jml > BATAS_ANGKA:
+                galat.append("Jumlah porsi harus berupa angka lebih dari 0.")
+            else:
+                jumlah = nilai_jml
 
     # 3. Validasi Tanggal (Wajib format TTTT-BB-HH / ISO)
     tanggal_raw = (form.get("tanggal") or "").strip()
@@ -120,7 +128,9 @@ def validasi_transaksi(form):
         tanggal_iso = date.today().isoformat()
     else:
         try:
-            # Uji format TTTT-BB-HH (ISO)
+            # Uji format TTTT-BB-HH (ISO) wajib dengan tanda hubung
+            if not re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", tanggal_raw):
+                raise ValueError("Format tanggal harus TTTT-BB-HH")
             parsed_date = date.fromisoformat(tanggal_raw)
             # Simpan dengan jam saat ini
             waktu_sekarang = datetime.now().strftime("%H:%M:%S")

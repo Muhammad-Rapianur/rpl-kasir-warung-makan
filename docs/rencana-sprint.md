@@ -63,16 +63,19 @@ Dokumen ini memetakan rencana pelaksanaan 4 siklus *Sprint* untuk menyelesaikan 
 
 ---
 
-### 🔹 Sprint 3 (Minggu 13–14): Pembayaran, Struk, dan Pengujian Lapangan (UAT)
-- **Fokus Utama:** Penyelesaian alur pembayaran dan verifikasi langsung dengan klien.
-- **Butir Backlog yang Dikerjakan:**
-  - `KF-06 & KF-07`: Kalkulasi otomatis uang kembalian tunai dan penolakan transaksi uang kurang.
-  - `KF-08`: Pilihan metode bayar Tunai vs QRIS statis warung.
-  - `KF-09`: Penomoran nota transaksi unik urut harian (`TRX-YYYYMMDD-XXX`).
-  - `KF-10`: Template cetak nota peramban `@media print` format thermal 58mm/80mm.
-  - `KF-11`: Halaman riwayat transaksi harian dan aksi cetak ulang nota.
-  - **Eksekusi Pengujian:** Menjalankan 17 Test Case terukur (`rencana-uji.md`) dan sesi *User Acceptance Testing* (UAT) bersama kasir warung makan.
-- **Target Entri Jurnal:** Minimal 26 entri.
+### 🔹 Sprint 3 (Minggu 13–14): Pengujian Otomatis, Perbaikan Cacat, dan Pelaksanaan UAT
+- **Fokus Utama:** Penjaminan mutu perangkat lunak, perbaikan cacat nyata (Red-Green TDD), dan verifikasi operasional langsung dengan pemilik warung makan.
+- **Capaian Minggu 13 (Jobsheet 13 — Selesai 100%):**
+  - Matriks Keterlacakan & 28 Test Case black-box (BVA, EP, Negative) pada `docs/pengujian/test-case.md`.
+  - Suite pengujian modern `pytest 9.1.1` (47 uji lulus 100%) mencakup validasi batas harga/porsi, matriks rute HTTP x 3 peran, dan alur transaksi kasir.
+  - Penutupan dan perbaikan 3 cacat nyata (`D-01` porsi unicode, `D-02` harga raksasa anti overflow, `D-03` format tanggal ISO) di `services.py`.
+  - Penyusunan dokumen rencana UAT (`docs/pengujian/rencana-uat.md`) berisi 6 skenario alur kerja nyata kasir.
+  - Jadwal UAT disepakati bersama Pak Joko (Jumat, 27 November 2026 pukul 14.00 WIB).
+  - Capaian Jurnal Vibe Coding: **38 entri lengkap** (bertambah 8 entri baru).
+- **Target Minggu 14 (Pertemuan 14):**
+  - Pelaksanaan sesi pengujian penerimaan pengguna (UAT) di Warung Makan Mitra.
+  - Pengisian kuesioner evaluasi kegunaan sistem (SUS / usability questionnaire).
+  - Rilis aplikasi versi `v1.0-release` beserta dokumentasi panduan pengguna (*user manual*).
 
 ---
 

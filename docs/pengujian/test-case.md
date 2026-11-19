@@ -73,8 +73,8 @@ Tiga isian utama dengan aturan bisnis ketat pada KasirWarung dianalisis batas ni
 | **TC-07** | KF-02 | Pelanggaran | Login Pemilik | Tambah menu dengan `harga = "15000.50"` (pecahan) | Ditolak validasi bilangan bulat | Ditolak validasi | **Lulus** |
 | **TC-08** | KF-02 | Pelanggaran | Login Pemilik | Tambah menu dengan `harga = "gratis"` (alfabet) | Ditolak validasi angka | Ditolak validasi | **Lulus** |
 | **TC-09** | KF-02 | Pelanggaran | Login Pemilik | Tambah menu dengan `harga = ""` (kosong) | Ditolak validasi wajib isi | Ditolak validasi | **Lulus** |
-| **TC-10** | KF-02 | BVA | Login Pemilik | Tambah menu dengan `harga = "1000000001"` (1 Miliar + 1) | Ditolak validasi melebihi batas atas | Lolos validasi (belum ada batas atas) | **Gagal (D-02)** |
-| **TC-11** | KF-02 | Pelanggaran | Login Pemilik | Tambah menu dengan `harga = "9" * 30` (30 digit) | Ditolak validasi aman, bukan galat 500 | Lolos validasi (potensi OverflowError) | **Gagal (D-02)** |
+| **TC-10** | KF-02 | BVA | Login Pemilik | Tambah menu dengan `harga = "1000000001"` (1 Miliar + 1) | Ditolak validasi melebihi batas atas | Ditolak oleh validasi BATAS_ANGKA | **Lulus (Regresi D-02)** |
+| **TC-11** | KF-02 | Pelanggaran | Login Pemilik | Tambah menu dengan `harga = "9" * 30` (30 digit) | Ditolak validasi aman, bukan galat 500 | Ditolak batas panjang string (<=10 digit) | **Lulus (Regresi D-02)** |
 | **TC-12** | KF-02 | Pelanggaran | Login Pemilik | Tambah menu dengan `harga = "²"` (angka unicode) | Ditolak validasi aman, bukan galat 500 | Ditolak oleh handler uji coba | **Lulus** |
 | **TC-13** | KF-01 | Normal | Login Pemilik | Tambah kategori `nama = "Minuman Segar"` | Diterima, kategori tersimpan | Diterima, tersimpan di database | **Lulus** |
 | **TC-14** | KF-01 | Pelanggaran | Login Pemilik | Tambah kategori `nama = "   "` (hanya spasi) | Ditolak validasi nama kosong | Ditolak validasi nama | **Lulus** |
@@ -95,15 +95,11 @@ Tiga isian utama dengan aturan bisnis ketat pada KasirWarung dianalisis batas ni
 
 ---
 
-## 4. Ringkasan Hasil Eksekusi Sesi 1
+## 4. Ringkasan Hasil Eksekusi Sesi 2 (Pasca Perbaikan Cacat)
 * **Total Test Case Dievaluasi:** 28 Kasus
-* **Jumlah Lulus:** 26 Kasus (**92.8%**)
-* **Jumlah Gagal (Calon Cacat Sesi 2):** 2 Kasus (TC-10 & TC-11) ditambah 2 kasus fungsi input (Unicode `"²"` pada porsi dan Tanggal `"20261120"`).
-
-### Daftar Calon Cacat yang Ditemukan (Untuk Diperbaiki di Sesi 2):
-1. **Calon D-01:** Karakter unicode `"²"` pada porsi pesanan menyebabkan `ValueError: invalid literal for int() with base 10: '²'`.
-2. **Calon D-02:** Harga menu melebihi 1 Miliar dan 30 digit angka lolos validasi tanpa batas atas, berpotensi memicu `OverflowError` di SQLite.
-3. **Calon D-03:** Masukan tanggal tanpa tanda hubung (`20261120`) diterima oleh `date.fromisoformat()`, padahal format resmi yang diwajibkan adalah `YYYY-MM-DD`.
+* **Jumlah Lulus:** 28 Kasus (**100% Lulus**)
+* **Jumlah Gagal:** 0 Kasus
+* **Status Cacat:** Seluruh 3 cacat nyata (D-01, D-02, D-03) berhasil diperbaiki dan diverifikasi oleh suite uji regresi otomatis.
 
 ---
 
