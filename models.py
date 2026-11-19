@@ -1,9 +1,10 @@
+import os
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
 
 # Jalur berkas basis data SQLite dan skema DDL
-DB_PATH = Path(__file__).with_name("kasir_warung.db")
+DB_PATH = Path(os.environ.get("KASIR_DB") or os.environ.get("TOKO_DB") or Path(__file__).with_name("kasir_warung.db"))
 SCHEMA_PATH = Path(__file__).parent / "docs" / "desain" / "schema.sql"
 
 

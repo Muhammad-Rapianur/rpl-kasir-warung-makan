@@ -224,3 +224,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Rahasia dan data rilis (Jobsheet 14)
+.env
+*.db
+toko.db
+kasir_warung.db
+cadangan/
+

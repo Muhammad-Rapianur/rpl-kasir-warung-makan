@@ -8,6 +8,7 @@ from flask import Flask, abort, flash, g, redirect, render_template, request, se
 import models
 import percobaan
 import services
+from versi import VERSI
 
 app = Flask(__name__)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -23,8 +24,10 @@ if not app.secret_key:
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=PRODUKSI,
+    # Hanya lewat HTTPS. Bila warung memakai HTTP di jaringan tertutup: COOKIE_SECURE=0
+    SESSION_COOKIE_SECURE=os.environ.get("COOKIE_SECURE", "1" if PRODUKSI else "0") == "1",
 )
+app.jinja_env.globals["versi"] = VERSI
 
 # Inisialisasi basis data SQLite saat aplikasi pertama kali dimuat
 models.init_db()
