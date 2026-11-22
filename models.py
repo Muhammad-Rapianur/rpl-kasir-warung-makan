@@ -162,19 +162,30 @@ def tambah_transaksi_dengan_detail(
     metode_pembayaran,
     uang_diterima,
     pengguna_id=2,
+    items=None,
 ):
-    """Menyimpan data kepala transaksi DAN rincian pesanan dalam SATU transaksi atomik SQLite.
+    """Menyimpan data kepala transaksi DAN rincian pesanan (bisa multi-item) dalam SATU transaksi atomik SQLite.
 
     (Jobsheet 10 - Langkah 5: Transaksi multi-tabel dalam satu with koneksi()).
-    Jika query kedua gagal, perubahan pertama otomatis dibatalkan (rollback).
+    Mendukung item tunggal (menu_id & jumlah) maupun multi-item via parameter items=[{'menu_id': .., 'jumlah': ..}].
     """
     with koneksi() as db:
-        # 1. Validasi keberadaan menu induk di database
-        menu = db.execute(
-            "SELECT id, nama, harga, status FROM menu WHERE id = ?", (menu_id,)
-        ).fetchone()
-        if menu is None:
-            raise sqlite3.IntegrityError(f"Menu dengan ID {menu_id} tidak ditemukan.")
+        # Siapkan daftar item yang akan dimasukkan
+        daftar_item = []
+        if items and isinstance(items, list) and len(items) > 0:
+            for itm in items:
+                m_id = int(itm["menu_id"])
+                jml = int(itm["jumlah"])
+                menu = db.execute("SELECT id, nama, harga, status FROM menu WHERE id = ?", (m_id,)).fetchone()
+                if menu is None:
+                    raise sqlite3.IntegrityError(f"Menu dengan ID {m_id} tidak ditemukan.")
+                daftar_item.append({"menu_id": m_id, "jumlah": jml, "harga": menu["harga"]})
+        else:
+            # Fallback untuk pengujian unit tunggal
+            menu = db.execute("SELECT id, nama, harga, status FROM menu WHERE id = ?", (menu_id,)).fetchone()
+            if menu is None:
+                raise sqlite3.IntegrityError(f"Menu dengan ID {menu_id} tidak ditemukan.")
+            daftar_item.append({"menu_id": int(menu_id), "jumlah": int(jumlah), "harga": menu["harga"]})
 
         # 2. Generate nomor transaksi unik berformat TRX-YYYYMMDD-XXX
         tgl_str = (
@@ -188,7 +199,7 @@ def tambah_transaksi_dengan_detail(
         ).fetchone()[0]
         nomor_transaksi = f"TRX-{tgl_str}-{total_hari_ini + 1:03d}"
 
-        # 3. Masukkan transaksi header
+        # 3. Masukkan transaksi header (hanya tunai)
         cursor = db.execute(
             """
             INSERT INTO transaksi (nomor_transaksi, tanggal_waktu, tipe_pesanan, nomor_meja, metode_pembayaran, uang_diterima, pengguna_id)
@@ -199,21 +210,22 @@ def tambah_transaksi_dengan_detail(
                 tanggal_waktu,
                 tipe_pesanan,
                 nomor_meja,
-                metode_pembayaran,
+                "tunai",
                 uang_diterima,
                 pengguna_id,
             ),
         )
         trx_id = cursor.lastrowid
 
-        # 4. Masukkan baris detail_transaksi (menyimpan harga satuan saat itu)
-        db.execute(
-            """
-            INSERT INTO detail_transaksi (transaksi_id, menu_id, jumlah, harga_satuan)
-            VALUES (?, ?, ?, ?)
-            """,
-            (trx_id, menu_id, jumlah, menu["harga"]),
-        )
+        # 4. Masukkan seluruh baris detail_transaksi multi-item
+        for itm in daftar_item:
+            db.execute(
+                """
+                INSERT INTO detail_transaksi (transaksi_id, menu_id, jumlah, harga_satuan)
+                VALUES (?, ?, ?, ?)
+                """,
+                (trx_id, itm["menu_id"], itm["jumlah"], itm["harga"]),
+            )
         return nomor_transaksi
 
 
@@ -302,6 +314,37 @@ def perbarui_password_pengguna(pengguna_id, password_hash):
             "UPDATE pengguna SET password_hash = ? WHERE id = ?",
             (password_hash, pengguna_id),
         )
+
+
+def rekapitulasi_omzet(tanggal_mulai=None, tanggal_selesai=None):
+    """Menghitung agregasi omzet total, jumlah nota, dan 5 menu terlaris (wf-06)."""
+    with koneksi() as db:
+        sql_summary = """
+            SELECT 
+                COALESCE(SUM(d.jumlah * d.harga_satuan), 0) AS total_omzet,
+                COUNT(DISTINCT t.id) AS total_nota
+            FROM transaksi t
+            JOIN detail_transaksi d ON t.id = d.transaksi_id
+        """
+        ringkasan = db.execute(sql_summary).fetchone()
+
+        sql_terlaris = """
+            SELECT 
+                m.nama AS nama_menu,
+                k.nama AS nama_kategori,
+                COALESCE(SUM(d.jumlah), 0) AS porsi_terjual,
+                COALESCE(SUM(d.jumlah * d.harga_satuan), 0) AS total_akumulasi
+            FROM detail_transaksi d
+            JOIN menu m ON d.menu_id = m.id
+            JOIN kategori k ON m.kategori_id = k.id
+            GROUP BY m.id, m.nama, k.nama
+            ORDER BY porsi_terjual DESC, total_akumulasi DESC
+            LIMIT 5
+        """
+        terlaris = db.execute(sql_terlaris).fetchall()
+
+        return dict(ringkasan), [dict(row) for row in terlaris]
+
 
 
 

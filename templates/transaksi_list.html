@@ -8,7 +8,9 @@
     <h1 style="margin: 0; font-size: 24px;">Riwayat Transaksi Penjualan</h1>
     <p style="margin: 4px 0 0 0; color: #6c757d; font-size: 14px;">Daftar transaksi kasir dengan relasi detail pesanan &amp; nama kasir (KF-11)</p>
   </div>
-  <a href="/transaksi/tambah" class="btn btn-primary">+ Catat Transaksi Baru</a>
+  {% if g.pengguna and g.pengguna['peran'] == 'kasir' %}
+    <a href="/transaksi/tambah" class="btn btn-primary">+ Catat Transaksi Baru (POS)</a>
+  {% endif %}
 </div>
 
 <table>
@@ -40,11 +42,7 @@
         {% endif %}
       </td>
       <td class="text-center">
-        {% if t['metode_pembayaran'] == 'tunai' %}
-          <span class="badge" style="background-color: #d1e7dd; color: #0f5132;">Tunai</span>
-        {% else %}
-          <span class="badge" style="background-color: #e2d9f3; color: #432874;">QRIS</span>
-        {% endif %}
+        <span class="badge" style="background-color: #d1e7dd; color: #0f5132;">Tunai</span>
       </td>
       <td class="text-right"><strong>{{ t['total_belanja'] | rupiah }}</strong></td>
     </tr>

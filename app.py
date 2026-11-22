@@ -404,8 +404,9 @@ def daftar_transaksi():
 @app.route("/transaksi/tambah", methods=["GET", "POST"])
 @semua_peran
 def tambah_transaksi():
-    """Form catat transaksi penjualan baru dengan relasi detail (Semua Peran)."""
+    """Form POS catat transaksi penjualan baru dengan relasi detail (wf-02)."""
     daftar_menu = models.semua_menu()
+    daftar_kategori = models.semua_kategori()
     isian_default = {"tanggal": date.today().isoformat(), "jumlah": 1}
 
     if request.method == "POST":
@@ -417,6 +418,29 @@ def tambah_transaksi():
             if menu_pilihan is None:
                 galat.append("Menu hidangan tidak ditemukan di database.")
 
+        # Dukungan multi-item pesanan (wf-02)
+        import json
+        items_json = request.form.get("items_json")
+        items = None
+        total_belanja = 0
+        if items_json:
+            try:
+                items = json.loads(items_json)
+                if isinstance(items, list) and len(items) > 0:
+                    for itm in items:
+                        m = models.ambil_menu(int(itm["menu_id"]))
+                        if m:
+                            total_belanja += int(itm["jumlah"]) * m["harga"]
+            except Exception:
+                items = None
+
+        if not items and menu_pilihan and data["jumlah"]:
+            total_belanja = data["jumlah"] * menu_pilihan["harga"]
+
+        # Validasi: Uang diterima tidak boleh kurang dari total tagihan
+        if total_belanja > 0 and data["uang_diterima"] < total_belanja:
+            galat.append(f"Uang diterima (Rp {data['uang_diterima']:,}) kurang dari total tagihan (Rp {total_belanja:,}).".replace(",", "."))
+
         if not galat:
             try:
                 # Gunakan ID pengguna yang sedang login di sesi
@@ -427,9 +451,10 @@ def tambah_transaksi():
                     tanggal_waktu=data["tanggal_waktu"],
                     tipe_pesanan=data["tipe_pesanan"],
                     nomor_meja=data["nomor_meja"],
-                    metode_pembayaran=data["metode_pembayaran"],
+                    metode_pembayaran="tunai",
                     uang_diterima=data["uang_diterima"],
                     pengguna_id=kasir_id,
+                    items=items,
                 )
             except sqlite3.IntegrityError as err:
                 galat.append(f"Gagal mencatat transaksi: {err}")
@@ -440,6 +465,7 @@ def tambah_transaksi():
         return render_template(
             "transaksi_form.html",
             menu=daftar_menu,
+            kategori=daftar_kategori,
             isian=request.form,
             galat=galat,
         )
@@ -447,9 +473,19 @@ def tambah_transaksi():
     return render_template(
         "transaksi_form.html",
         menu=daftar_menu,
+        kategori=daftar_kategori,
         isian=isian_default,
         galat=[],
     )
+
+
+@app.route("/laporan")
+@hanya_pemilik
+def laporan_omzet():
+    """Halaman rekapitulasi omzet dan 5 menu terlaris (wf-06 - Khusus Pemilik)."""
+    ringkasan, terlaris = models.rekapitulasi_omzet()
+    return render_template("laporan_omzet.html", ringkasan=ringkasan, terlaris=terlaris)
+
 
 
 

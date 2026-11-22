@@ -1,81 +1,392 @@
 {% extends "base.html" %}
 
-{% block judul %}Catat Transaksi Baru — KasirWarung{% endblock %}
+{% block judul %}POS Kasir — Transaksi Penjualan Baru — KasirWarung{% endblock %}
 
 {% block isi %}
-<div class="form-card">
-  <h1 style="margin-top: 0; font-size: 22px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">Catat Transaksi Penjualan Baru</h1>
-
-  {% if galat %}
-    <div class="pesan-flash pesan-galat" style="margin-bottom: 16px;">
-      <ul style="margin: 0; padding-left: 20px;">
-        {% for g in galat %}
-          <li>{{ g }}</li>
-        {% endfor %}
-      </ul>
-    </div>
-  {% endif %}
-
-  <form method="post">
+<div class="pos-container" style="background: white; border: 1.5px solid #212529; border-radius: 6px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
+  
+  <form method="post" id="form-pos" onsubmit="return submitForm(event)">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <div class="form-group">
-      <label for="menu_id">Pilih Menu Hidangan (Tabel Induk) <span style="color: red;">*</span></label>
-      <select id="menu_id" name="menu_id" class="form-control" required>
-        <option value="">-- Pilih Hidangan --</option>
-        {% for m in menu %}
-          <option value="{{ m['id'] }}" {% if isian.get('menu_id')|string == m['id']|string %}selected{% endif %}>
-            {{ m['nama'] }} — {{ m['harga'] | rupiah }} [{{ m['status'] | capitalize }}]
-          </option>
-        {% endfor %}
-      </select>
-    </div>
+    <input type="hidden" name="items_json" id="items_json" value="">
+    <input type="hidden" name="menu_id" id="hidden_menu_id" value="">
+    <input type="hidden" name="jumlah" id="hidden_jumlah" value="1">
+    <input type="hidden" name="metode_pembayaran" value="tunai">
 
-    <div style="display: flex; gap: 16px;">
-      <div class="form-group" style="flex: 1;">
-        <label for="jumlah">Jumlah Porsi <span style="color: red;">*</span></label>
-        <input type="number" id="jumlah" name="jumlah" class="form-control" min="1" value="{{ isian.get('jumlah', 1) }}" required>
-      </div>
+    <!-- Header Transaksi (Sesuai wf-02) -->
+    <div class="page-title" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+      <h1 style="margin: 0; font-size: 22px; color: #212529;">Transaksi Penjualan Baru</h1>
+      
+      <div style="display: flex; gap: 12px; align-items: center; font-size: 14px; flex-wrap: wrap;">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label for="tipe_pesanan"><b>Tipe:</b></label>
+          <select id="tipe_pesanan" name="tipe_pesanan" class="form-control" style="width: auto; padding: 4px 10px;" onchange="updateTipePesanan()">
+            <option value="dine_in" {% if isian.get('tipe_pesanan') == 'dine_in' %}selected{% endif %}>Makan di Tempat</option>
+            <option value="take_away" {% if isian.get('tipe_pesanan') == 'take_away' %}selected{% endif %}>Bungkus (Take-away)</option>
+          </select>
+        </div>
 
-      <div class="form-group" style="flex: 1;">
-        <label for="tanggal">Tanggal Transaksi <span style="color: red;">*</span></label>
-        <input type="date" id="tanggal" name="tanggal" class="form-control" value="{{ isian.get('tanggal', '') }}" required>
-      </div>
-    </div>
+        <div style="display: flex; align-items: center; gap: 6px;" id="box-meja">
+          <label for="nomor_meja"><b>Meja:</b></label>
+          <input type="text" id="nomor_meja" name="nomor_meja" class="form-control" style="width: 75px; padding: 4px 8px; text-align: center;" value="{{ isian.get('nomor_meja', '05') }}" placeholder="05">
+        </div>
 
-    <div style="display: flex; gap: 16px;">
-      <div class="form-group" style="flex: 1;">
-        <label for="tipe_pesanan">Tipe Layanan</label>
-        <select id="tipe_pesanan" name="tipe_pesanan" class="form-control">
-          <option value="dine_in" {% if isian.get('tipe_pesanan') == 'dine_in' %}selected{% endif %}>Makan di Tempat (Dine-in)</option>
-          <option value="take_away" {% if isian.get('tipe_pesanan') == 'take_away' %}selected{% endif %}>Bungkus (Take-away)</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="flex: 1;">
-        <label for="nomor_meja">Nomor Meja</label>
-        <input type="text" id="nomor_meja" name="nomor_meja" class="form-control" placeholder="Contoh: 05" value="{{ isian.get('nomor_meja', '') }}">
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label for="tanggal"><b>Tanggal:</b></label>
+          <input type="date" id="tanggal" name="tanggal" class="form-control" style="width: 145px; padding: 4px 8px;" value="{{ isian.get('tanggal', '') }}" required>
+        </div>
       </div>
     </div>
 
-    <div style="display: flex; gap: 16px;">
-      <div class="form-group" style="flex: 1;">
-        <label for="metode_pembayaran">Metode Pembayaran</label>
-        <select id="metode_pembayaran" name="metode_pembayaran" class="form-control">
-          <option value="tunai" {% if isian.get('metode_pembayaran') == 'tunai' %}selected{% endif %}>Tunai (Cash)</option>
-          <option value="qris" {% if isian.get('metode_pembayaran') == 'qris' %}selected{% endif %}>QRIS Statis</option>
-        </select>
-      </div>
-
-      <div class="form-group" style="flex: 1;">
-        <label for="uang_diterima">Uang Diterima (Rp)</label>
-        <input type="number" id="uang_diterima" name="uang_diterima" class="form-control" placeholder="Contoh: 50000" min="0" value="{{ isian.get('uang_diterima', '') }}">
-      </div>
+    <!-- Alert Peringatan / Galat (Sesuai wf-02) -->
+    <div id="alert-habis" class="alert-error" style="display: none; border: 2px dashed #dc3545; background: #fff5f5; color: #721c24; padding: 10px 14px; border-radius: 4px; margin-bottom: 16px; font-weight: 500; font-size: 13px;">
+      <span><b>Peringatan:</b> Menu <span id="nama-menu-habis"></span> sedang <b>HABIS</b> dan tidak dapat ditambahkan ke pesanan!</span>
     </div>
 
-    <div style="margin-top: 24px; display: flex; gap: 12px;">
-      <button type="submit" class="btn btn-primary" style="padding: 10px 24px;">Simpan Transaksi</button>
-      <a href="/transaksi" class="btn btn-outline" style="padding: 10px 20px;">Batal</a>
+    {% if galat %}
+      <div class="pesan-flash pesan-galat" style="margin-bottom: 16px;">
+        <ul style="margin: 0; padding-left: 20px;">
+          {% for g in galat %}
+            <li>{{ g }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <!-- Layout 2-Kolom POS Kasir (wf-02) -->
+    <div class="pos-layout" style="display: flex; gap: 24px; flex-wrap: wrap;">
+      
+      <!-- Area Kiri: Panel Menu & Kategori -->
+      <div class="menu-panel" style="flex: 1.35; min-width: 320px;">
+        
+        <!-- Category Tabs -->
+        <div class="category-tabs" style="display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary btn-tab active" onclick="filterKategori('semua', this)" style="padding: 6px 12px; font-size: 13px;">Semua</button>
+          {% for k in kategori %}
+            <button type="button" class="btn btn-outline btn-tab" onclick="filterKategori('kat-{{ k['id'] }}', this)" style="padding: 6px 12px; font-size: 13px;">{{ k['nama'] }}</button>
+          {% endfor %}
+        </div>
+
+        <!-- Menu Grid Touch-Friendly Cards (wf-02) -->
+        <div class="menu-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px;">
+          {% for m in menu %}
+            <div 
+              class="menu-card item-menu kat-{{ m['kategori_id'] }} {% if m['status'] != 'tersedia' %}disabled{% endif %}" 
+              data-id="{{ m['id'] }}" 
+              data-nama="{{ m['nama'] }}" 
+              data-harga="{{ m['harga'] }}" 
+              data-status="{{ m['status'] }}"
+              onclick="tambahMenuKeKeranjang({{ m['id'] }}, '{{ m['nama'] }}', {{ m['harga'] }}, '{{ m['status'] }}')"
+              style="border: 1.5px solid {% if m['status'] != 'tersedia' %}#adb5bd{% else %}#333333{% endif %}; border-style: {% if m['status'] != 'tersedia' %}dashed{% else %}solid{% endif %}; padding: 12px 8px; border-radius: 6px; text-align: center; cursor: {% if m['status'] != 'tersedia' %}not-allowed{% else %}pointer{% endif %}; background: {% if m['status'] != 'tersedia' %}#f1f3f5{% else %}#ffffff{% endif %}; min-height: 85px; display: flex; flex-direction: column; justify-content: center; transition: all 0.15s ease;"
+              title="Klik untuk menambahkan ke daftar pesanan"
+            >
+              <b style="font-size: 14px; margin-bottom: 4px; color: {% if m['status'] != 'tersedia' %}#6c757d{% else %}#212529{% endif %};">{{ m['nama'] }}</b>
+              {% if m['status'] == 'tersedia' %}
+                <span style="font-size: 13px; color: #198754; font-weight: bold;">{{ m['harga'] | rupiah }}</span>
+              {% else %}
+                <span style="font-size: 11px; color: #dc3545; font-weight: bold;">[HABIS]</span>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+
+      </div>
+
+      <!-- Area Kanan: Panel Keranjang Pesanan Multi-Item (wf-02) -->
+      <div class="cart-panel" style="flex: 1.05; min-width: 320px; border-left: 2px solid #dee2e6; padding-left: 20px;">
+        <h3 style="margin-top: 0; margin-bottom: 14px; font-size: 16px; color: #212529;" id="judul-pesanan">
+          Daftar Pesanan Meja <span id="label-meja">{{ isian.get('nomor_meja', '05') }}</span>
+        </h3>
+
+        <!-- Tabel Ringkasan Pesanan Multi-Item -->
+        <table class="table" style="width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: 13px;">
+          <thead>
+            <tr style="background: #e9ecef;">
+              <th style="padding: 8px 10px; border: 1px solid #ced4da; text-align: left;">Menu</th>
+              <th style="padding: 8px 6px; border: 1px solid #ced4da; text-align: center; width: 95px;">Porsi</th>
+              <th style="padding: 8px 10px; border: 1px solid #ced4da; text-align: right; width: 90px;">Subtotal</th>
+              <th style="padding: 8px 6px; border: 1px solid #ced4da; text-align: center; width: 35px;"></th>
+            </tr>
+          </thead>
+          <tbody id="cart-tbody">
+            <!-- Diisi secara dinamis oleh JavaScript -->
+          </tbody>
+        </table>
+
+        <!-- Ringkasan Total Tagihan (wf-02) -->
+        <div style="border-top: 2px solid #212529; border-bottom: 2px solid #212529; padding: 12px 0; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 18px; font-weight: bold;">
+            <span>Total Tagihan:</span>
+            <span id="total-tagihan" style="color: #198754; font-size: 22px;">Rp 0</span>
+          </div>
+        </div>
+
+        <!-- Pembayaran Tunai (Hanya Tunai, Opsi QRIS Dihapus) -->
+        <div style="margin-bottom: 14px;">
+          <label style="font-weight: bold; font-size: 13px; margin-bottom: 6px; display: block;">Metode Pembayaran:</label>
+          <div style="padding: 6px 12px; background: #e9ecef; border-radius: 4px; font-weight: bold; color: #212529; font-size: 14px; display: inline-block;">
+            💵 Tunai (Cash)
+          </div>
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label for="uang_diterima" style="font-weight: bold; font-size: 13px; margin-bottom: 4px; display: block;">Uang Diterima (Rp):</label>
+          <input type="number" id="uang_diterima" name="uang_diterima" class="form-control" placeholder="Contoh: 50000" value="{{ isian.get('uang_diterima', '') }}" oninput="hitungKembalian()" style="font-size: 15px;">
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; border: 1px solid var(--border); padding: 10px 14px; border-radius: 4px; margin-bottom: 18px;">
+          <span style="font-weight: bold; font-size: 14px;">Kembalian:</span>
+          <span id="label-kembalian" style="font-weight: bold; font-size: 16px; color: #6c757d;">Rp 0</span>
+        </div>
+
+        <!-- Tombol Aksi Simpan & Batal (wf-02) -->
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="submit" id="btn-simpan" class="btn btn-primary" style="flex: 2; padding: 12px; font-size: 15px; font-weight: bold; background: #198754; border-color: #157347; opacity: 0.5; cursor: not-allowed;" disabled>
+            Simpan &amp; Cetak Transaksi
+          </button>
+          <a href="{{ url_for('daftar_transaksi') }}" class="btn btn-outline" style="flex: 1; padding: 12px; font-size: 14px; text-align: center;">
+            Batal
+          </a>
+        </div>
+
+      </div>
+
     </div>
+
   </form>
+
 </div>
+
+<script>
+// Data Keranjang Pesanan (Multi-Item)
+let keranjang = [];
+
+function filterKategori(kat, btn) {
+  document.querySelectorAll('.btn-tab').forEach(b => {
+    b.classList.remove('btn-primary', 'active');
+    b.classList.add('btn-outline');
+  });
+  btn.classList.remove('btn-outline');
+  btn.classList.add('btn-primary', 'active');
+
+  const items = document.querySelectorAll('.item-menu');
+  items.forEach(item => {
+    if (kat === 'semua' || item.classList.contains(kat)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
+}
+
+function tambahMenuKeKeranjang(id, nama, harga, status) {
+  const alertHabis = document.getElementById('alert-habis');
+  if (status !== 'tersedia') {
+    document.getElementById('nama-menu-habis').innerText = nama;
+    alertHabis.style.display = 'block';
+    return;
+  }
+  alertHabis.style.display = 'none';
+
+  // Periksa apakah menu sudah ada di keranjang
+  const existing = keranjang.find(item => item.menu_id === id);
+  if (existing) {
+    existing.jumlah += 1;
+  } else {
+    keranjang.push({
+      menu_id: id,
+      nama: nama,
+      harga: harga,
+      jumlah: 1
+    });
+  }
+
+  renderKeranjang();
+}
+
+function ubahJumlah(id, delta) {
+  const item = keranjang.find(i => i.menu_id === id);
+  if (item) {
+    item.jumlah += delta;
+    if (item.jumlah <= 0) {
+      hapusItem(id);
+      return;
+    }
+  }
+  renderKeranjang();
+}
+
+function ubahJumlahManual(id, input) {
+  const val = parseInt(input.value) || 0;
+  const item = keranjang.find(i => i.menu_id === id);
+  if (item) {
+    if (val <= 0) {
+      hapusItem(id);
+      return;
+    }
+    item.jumlah = val;
+  }
+  renderKeranjang();
+}
+
+function hapusItem(id) {
+  keranjang = keranjang.filter(i => i.menu_id !== id);
+  renderKeranjang();
+}
+
+function renderKeranjang() {
+  const tbody = document.getElementById('cart-tbody');
+  tbody.innerHTML = '';
+
+  if (keranjang.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="4" style="padding: 16px; text-align: center; color: #6c757d; font-style: italic;">
+          Keranjang masih kosong.<br><small>Klik kartu menu di sebelah kiri untuk menambahkan hidangan.</small>
+        </td>
+      </tr>
+    `;
+    document.getElementById('total-tagihan').innerText = 'Rp 0';
+    document.getElementById('hidden_menu_id').value = '';
+    document.getElementById('hidden_jumlah').value = '0';
+    document.getElementById('items_json').value = '';
+    hitungKembalian();
+    return;
+  }
+
+  let total = 0;
+  keranjang.forEach(item => {
+    const subtotal = item.jumlah * item.harga;
+    total += subtotal;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="padding: 8px 10px; border: 1px solid #ced4da;">
+        <b>${item.nama}</b><br>
+        <small style="color: #6c757d;">@Rp ${item.harga.toLocaleString('id-ID')}</small>
+      </td>
+      <td style="padding: 4px; border: 1px solid #ced4da; text-align: center;">
+        <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+          <button type="button" onclick="ubahJumlah(${item.menu_id}, -1)" style="padding: 2px 6px; border: 1px solid #ced4da; background: #e9ecef; border-radius: 3px; cursor: pointer; font-weight: bold;">-</button>
+          <input type="number" value="${item.jumlah}" min="1" onchange="ubahJumlahManual(${item.menu_id}, this)" style="width: 40px; text-align: center; padding: 2px; border: 1px solid #ced4da; border-radius: 3px;">
+          <button type="button" onclick="ubahJumlah(${item.menu_id}, 1)" style="padding: 2px 6px; border: 1px solid #ced4da; background: #e9ecef; border-radius: 3px; cursor: pointer; font-weight: bold;">+</button>
+        </div>
+      </td>
+      <td style="padding: 8px 10px; border: 1px solid #ced4da; text-align: right; font-weight: bold; color: #198754;">
+        Rp ${subtotal.toLocaleString('id-ID')}
+      </td>
+      <td style="padding: 4px; border: 1px solid #ced4da; text-align: center;">
+        <button type="button" onclick="hapusItem(${item.menu_id})" style="border: none; background: transparent; color: #dc3545; font-weight: bold; font-size: 14px; cursor: pointer;" title="Hapus menu">&times;</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('total-tagihan').innerText = 'Rp ' + total.toLocaleString('id-ID');
+
+  // Sinkronkan data ke input tersembunyi
+  document.getElementById('items_json').value = JSON.stringify(keranjang);
+  if (keranjang.length > 0) {
+    document.getElementById('hidden_menu_id').value = keranjang[0].menu_id;
+    document.getElementById('hidden_jumlah').value = keranjang[0].jumlah;
+  }
+
+  hitungKembalian();
+}
+
+function hitungKembalian() {
+  const total = keranjang.reduce((sum, item) => sum + (item.jumlah * item.harga), 0);
+  const uangInput = document.getElementById('uang_diterima');
+  const uang = parseInt(uangInput.value) || 0;
+  const kembalian = uang - total;
+
+  const labelKembalian = document.getElementById('label-kembalian');
+  const btnSimpan = document.getElementById('btn-simpan');
+
+  if (total === 0) {
+    labelKembalian.innerText = 'Rp 0';
+    labelKembalian.style.color = '#6c757d';
+    btnSimpan.disabled = true;
+    btnSimpan.style.opacity = '0.5';
+    btnSimpan.style.cursor = 'not-allowed';
+    return;
+  }
+
+  // Jika uang kurang (merah) -> tombol simpan DINONAKTIFKAN (tidak bisa diklik)
+  if (uang < total || uang === 0) {
+    const kekurangan = total - uang;
+    labelKembalian.innerText = 'Kurang Rp ' + kekurangan.toLocaleString('id-ID');
+    labelKembalian.style.color = '#dc3545';
+    btnSimpan.disabled = true;
+    btnSimpan.style.opacity = '0.5';
+    btnSimpan.style.cursor = 'not-allowed';
+  } else {
+    // Jika uang pas atau berlebih (hijau) -> tombol simpan AKTIF
+    labelKembalian.innerText = 'Rp ' + kembalian.toLocaleString('id-ID');
+    labelKembalian.style.color = '#198754';
+    btnSimpan.disabled = false;
+    btnSimpan.style.opacity = '1';
+    btnSimpan.style.cursor = 'pointer';
+  }
+}
+
+function updateTipePesanan() {
+  const tipe = document.getElementById('tipe_pesanan').value;
+  const boxMeja = document.getElementById('box-meja');
+  const inputMeja = document.getElementById('nomor_meja');
+  const labelMeja = document.getElementById('label-meja');
+
+  if (tipe === 'take_away') {
+    boxMeja.style.display = 'none';
+    inputMeja.value = '';
+    labelMeja.innerText = 'Bungkus';
+  } else {
+    boxMeja.style.display = 'flex';
+    if (!inputMeja.value) inputMeja.value = '05';
+    labelMeja.innerText = inputMeja.value;
+  }
+}
+
+function submitForm(e) {
+  const total = keranjang.reduce((sum, item) => sum + (item.jumlah * item.harga), 0);
+  const uang = parseInt(document.getElementById('uang_diterima').value) || 0;
+
+  if (keranjang.length === 0) {
+    alert('Keranjang pesanan masih kosong! Pilih hidangan terlebih dahulu.');
+    e.preventDefault();
+    return false;
+  }
+
+  if (uang < total) {
+    alert('Uang yang diterima kurang dari total tagihan! Transaksi tidak dapat disimpan.');
+    e.preventDefault();
+    return false;
+  }
+
+  return true;
+}
+
+// Inisialisasi awal saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  const inputMeja = document.getElementById('nomor_meja');
+  if (inputMeja) {
+    inputMeja.addEventListener('input', (e) => {
+      document.getElementById('label-meja').innerText = e.target.value || '-';
+    });
+  }
+
+  // Jika ada isian awal dari server (misal setelah validasi galat atau test)
+  const isianMenuId = "{{ isian.get('menu_id', '') }}";
+  const isianJumlah = parseInt("{{ isian.get('jumlah', 1) }}") || 1;
+  if (isianMenuId) {
+    const kartu = document.querySelector(`.menu-card[data-id="${isianMenuId}"]`);
+    if (kartu) {
+      const nama = kartu.getAttribute('data-nama');
+      const harga = parseInt(kartu.getAttribute('data-harga')) || 0;
+      keranjang.push({ menu_id: parseInt(isianMenuId), nama: nama, harga: harga, jumlah: isianJumlah });
+    }
+  }
+
+  renderKeranjang();
+});
+</script>
 {% endblock %}

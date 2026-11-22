@@ -312,3 +312,42 @@ tr:hover {
     white-space: nowrap;
   }
 }
+
+/* ============================================================
+   Gaya Tambahan: POS Kasir Touch-Friendly & Wireframe Layout (wf-02 & wf-06)
+   ============================================================ */
+.pos-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.menu-card:not(.disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+  border-color: #0d6efd !important;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Struk Print Styling (@media print) */
+@media print {
+  header, footer, .btn, .category-tabs, .form-group, #form-pos .menu-panel, .page-title, .user-meta {
+    display: none !important;
+  }
+  body, .pos-container, .cart-panel {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+  }
+  .cart-panel {
+    border-left: none !important;
+  }
+}
+

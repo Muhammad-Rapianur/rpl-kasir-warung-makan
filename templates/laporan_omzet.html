@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block judul %}Rekapitulasi Omzet &amp; Menu Terlaris — KasirWarung{% endblock %}
+
+{% block isi %}
+<div class="page-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+  <div>
+    <h1 style="margin: 0; font-size: 24px;">Rekapitulasi Omzet &amp; Menu Terlaris</h1>
+    <p style="margin: 4px 0 0 0; color: #6c757d; font-size: 14px;">Laporan ringkasan finansial dan peringkat menu terlaris warung makan</p>
+  </div>
+  <div style="font-size: 13px; color: #495057; display: flex; align-items: center; gap: 8px;">
+    <span>Status: <b>Laporan Real-Time</b></span>
+  </div>
+</div>
+
+<!-- 2 Kartu Metrik Kas (Sesuai Permintaan) -->
+<div class="cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 28px;">
+  <div class="stat-card" style="background: white; border: 1.5px solid #212529; border-radius: 6px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+    <div style="font-size: 14px; font-weight: bold; color: #495057;">Total Omzet Penjualan</div>
+    <div style="font-size: 26px; font-weight: bold; margin-top: 8px; color: #198754;">{{ ringkasan['total_omzet'] | rupiah }}</div>
+  </div>
+
+  <div class="stat-card" style="background: white; border: 1.5px solid #212529; border-radius: 6px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04);">
+    <div style="font-size: 14px; font-weight: bold; color: #495057;">Jumlah Transaksi Selesai</div>
+    <div style="font-size: 26px; font-weight: bold; margin-top: 8px; color: #212529;">{{ ringkasan['total_nota'] }} Nota</div>
+  </div>
+</div>
+
+<!-- Tabel 5 Menu Terlaris (Top 5 Best Seller) -->
+<div style="background: white; border: 1px solid var(--border); border-radius: 6px; padding: 20px;">
+  <h2 style="margin-top: 0; font-size: 18px; margin-bottom: 16px; color: #212529; display: flex; align-items: center; gap: 8px;">
+    <span>Top 5 Menu Paling Laris (Best Seller)</span>
+  </h2>
+
+  {% if terlaris %}
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 70px;" class="text-center">Peringkat</th>
+          <th>Nama Hidangan</th>
+          <th>Kategori</th>
+          <th class="text-center">Porsi Terjual</th>
+          <th class="text-right">Total Akumulasi</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for m in terlaris %}
+          <tr>
+            <td class="text-center"><strong>#{{ loop.index }}</strong></td>
+            <td><strong>{{ m['nama_menu'] }}</strong></td>
+            <td><span class="badge" style="background: #e9ecef; color: #495057;">{{ m['nama_kategori'] }}</span></td>
+            <td class="text-center">{{ m['porsi_terjual'] }} porsi</td>
+            <td class="text-right" style="color: #198754; font-weight: bold;">{{ m['total_akumulasi'] | rupiah }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p style="color: #6c757d; font-style: italic; margin: 0;">Belum ada data transaksi untuk menyusun peringkat menu terlaris.</p>
+  {% endif %}
+</div>
+{% endblock %}

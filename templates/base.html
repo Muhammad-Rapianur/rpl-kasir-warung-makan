@@ -11,19 +11,24 @@
     <a href="{{ url_for('beranda') }}" class="brand">KasirWarung</a>
     <nav>
       {% if g.pengguna %}
-        <a href="{{ url_for('daftar_menu') }}">Katalog Menu</a>
+        {# POS Kasir hanya tampil untuk Kasir #}
+        {% if g.pengguna['peran'] == 'kasir' %}
+          <a href="{{ url_for('tambah_transaksi') }}" class="nav-item">POS Kasir</a>
+        {% endif %}
+
+        <a href="{{ url_for('daftar_transaksi') }}" class="nav-item">Riwayat Transaksi</a>
         
         {# Menu Khusus Pemilik Warung #}
         {% if g.pengguna['peran'] == 'pemilik' %}
-          <a href="{{ url_for('daftar_kategori') }}">Kelola Kategori</a>
+          <a href="{{ url_for('daftar_menu') }}" class="nav-item">Kelola Menu</a>
+          <a href="{{ url_for('daftar_kategori') }}" class="nav-item">Kelola Kategori</a>
+          <a href="{{ url_for('laporan_omzet') }}" class="nav-item">Laporan Omzet</a>
+        {% else %}
+          <a href="{{ url_for('daftar_menu') }}" class="nav-item">Lihat Menu</a>
         {% endif %}
 
-        <a href="{{ url_for('daftar_transaksi') }}">Riwayat Transaksi</a>
-        <a href="{{ url_for('tambah_transaksi') }}">+ Transaksi Baru</a>
-
         <div class="user-meta">
-          <span class="user-name">{{ g.pengguna['username'] }}</span>
-          <span class="badge-peran">{{ g.pengguna['peran'] }}</span>
+          <span class="user-name">Petugas: <b>{{ g.pengguna['nama_lengkap'] }}</b> ({{ g.pengguna['peran'] }})</span>
           <form class="logout-form" method="post" action="{{ url_for('logout') }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="btn-logout">Keluar</button>
